@@ -170,7 +170,7 @@ open class MRZTD3: MRZParser {
         debugLog("sex : \(sex)")
         let expiration = line2.subString(21, to: 26).toNumber()
         expirationDate = MRZTD3.dateFromString(expiration)
-        debugLog("date of expiration : \(expirationDate)")
+        debugLog("date of expiration : \(String(describing: expirationDate))")
         let expirationValidation = line2.subString(27, to: 27).toNumber()
         personalNumber =  line2.subString(28, to: 41).toNumber()
         debugLog("personal number : \(personalNumber)")

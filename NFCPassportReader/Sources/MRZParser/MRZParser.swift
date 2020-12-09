@@ -85,7 +85,7 @@ open class MRZParser : NSObject{
         print("Check '\(data)' for check '\(check)'")
         var i: Int = 1
         var dc: Int = 0
-        var w: [Int] = [7,3,1]
+        let w: [Int] = [7,3,1]
         let b0: UInt8 = "0".utf8.first!
         let b9: UInt8 = "9".utf8.first!
         let bA: UInt8 = "A".utf8.first!
@@ -153,7 +153,7 @@ extension String {
     func subString(_ from: Int, to: Int) -> String {
         let f: String.Index = self.index(self.startIndex, offsetBy: from)
         let t: String.Index = self.index(self.startIndex, offsetBy: to + 1)
-        return self.substring(with: f..<t)
+        return String(self[f..<t])
     }
 }
 
