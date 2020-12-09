@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
     s.author = { "Davide Ceresola" => "davide.ceresola@satispay.com" }
 
     # 5 - Replace this URL with your own GitHub page's URL (from the address bar)
-    # s.homepage = "https://github.com/TheCodedSelf/RWPickFlavor"
+    s.homepage = "https://github.com/dadocere/NFCPassportReader"
 
     # 6 - Replace this URL with your own Git URL from "Quick Setup"
     s.source = { :git => "https://github.com/dadocere/NFCPassportReader.git",
