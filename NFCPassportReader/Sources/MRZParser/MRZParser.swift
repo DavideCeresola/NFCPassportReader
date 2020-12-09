@@ -8,24 +8,23 @@
 
 import Foundation
 
-@objc(MRZParser)
-open class MRZParser : NSObject{
+public class MRZParser : NSObject {
     
-    @objc public var parsedMRZ: String = ""
+    private let parsedMRZ: String
 
-    
-    @objc public init(scan: String, debug: Bool = false) {
-        super.init()
+    public init(scan: String, debug: Bool = false) {
         parsedMRZ = scan
+        super.init()
     }
     
     /// Was the last scan valid. A value of 1 is for when all validations are OK
-    @objc func isValid() -> Float {return 0}
+    public func isValid() -> Float {
+        return 0
+    }
     
     // A dictionary with mrz parsed fields
-    @objc public func data() -> Dictionary<String, Any> {return Dictionary.init()}
+    public func data() -> Dictionary<String, Any> {return Dictionary.init()}
 
-    
     
     /**
      Create a date from a string
@@ -101,14 +100,14 @@ open class MRZParser : NSObject{
                 return false
             }
             dc = dc + d * w[(i-1)%3]
-            //print("i = \(i)   c = \(c)   d = \(d)   w = \(w[(i-1)%3])   dc = \(dc)")
             i += 1
         }
         if dc%10 != Int(check) {
             return false
         }
-        //NSLog("Item was valid")
+        
         return true
+        
     }
 }
 

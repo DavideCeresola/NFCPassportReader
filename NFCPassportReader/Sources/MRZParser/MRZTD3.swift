@@ -8,8 +8,7 @@
 
 import Foundation
 
-@objc(MRZTD3)
-open class MRZTD3: MRZParser {
+public class MRZTD3: MRZParser {
     // check data with http://en.wikipedia.org/wiki/Machine-readable_passport
     
     /// Was the last scan valid. A value of 1 is for when all validations are OK
@@ -19,34 +18,34 @@ open class MRZTD3: MRZParser {
     private var _debug = false
     
     /// The document type from the 1st line of the MRZ. (start 1, len 1)
-    @objc public var documentType: String = ""
+    public var documentType: String = ""
     /// The document sub type from the 1st line of the MRZ. (start 2, len 1)
-    @objc public var documentSubType: String = ""
+    public var documentSubType: String = ""
     /// The country code from the 1st line of the MRZ (start 3, len 3)
-    @objc public var countryCode: String = ""
+    public var countryCode: String = ""
     /// The last name from the 1st line of the MRZ (start 6, len 39, until first <<)
-    @objc public var lastName: String = ""
+    public var lastName: String = ""
     /// The firstname from the 1st line of the MRZ (start 6, len 39, after first <<)
-    @objc public var firstName: String = ""
+    public var firstName: String = ""
     
     /// The passport number from the 2nd line of the MRZ. (start 1, len 9)
-    @objc public var passportNumber: String = ""
+    public var passportNumber: String = ""
     /// start 10, len 1 - validating the passportNumber
     private var passportNumberIsValid = false
     /// The nationality from the 2nd line of the MRZ. (start 11, len 3)
-    @objc public var nationality: String = ""
+    public var nationality: String = ""
     /// The date of birth from the 2nd line of the MRZ (start 14, len 6)
-    @objc public var dateOfBirth: Date?
+    public var dateOfBirth: Date?
     /// start 20, len 1 - validating the dateOfBirth
     private var dateOfBirthIsValid = false
     /// The sex from the 2nd line of the MRZ. (start 21, len 1)
-    @objc public var sex: String = ""
+    public var sex: String = ""
     /// The expiration date from the 2nd line of the MRZ. (start 22, len 6)
-    @objc public var expirationDate: Date?
+    public var expirationDate: Date?
     /// start 28, len 1 - validating the expirationDate
     private var expirationDateIsValid = false
     /// The personal number from the 2nd line of the MRZ. (start 29, len 14
-    @objc public var personalNumber: String = ""
+    public var personalNumber: String = ""
     /// start 43, len 1 - validating the personalNumber
     private var personalNumberIsValid = false
     // start 44, len 1 - validating passport number, date of birth, expiration date
@@ -58,7 +57,7 @@ open class MRZTD3: MRZParser {
      
      :returns: Return all fields in a dictionary
      */
-    @objc public override func data() -> Dictionary<String, Any> {
+    public override func data() -> Dictionary<String, Any> {
         return ["documentType"    : documentType,
                 "documentSubType" : documentSubType,
                 "countryCode"     : countryCode,
@@ -77,7 +76,7 @@ open class MRZTD3: MRZParser {
      
      :returns: a string with all fields plus field name (each field on a new line)
      */
-    @objc open override var description: String {
+    open override var description: String {
         get {
             return self.data().map {"\($0) = \($1)"}.reduce("") {"\($0)\n\($1)"}
         }
@@ -91,7 +90,7 @@ open class MRZTD3: MRZParser {
      
      :returns: Instance of MRZ
      */
-    @objc public override init(scan: String, debug: Bool = false) {
+    public override init(scan: String, debug: Bool = false) {
         super.init(scan: scan, debug: debug)
         _debug = debug
         let lines: [String] = scan.split(separator: "\n").map({String($0)})
@@ -126,8 +125,9 @@ open class MRZTD3: MRZParser {
         }
     }
     
-    @objc override func isValid() -> Float {return _isValid}
-    
+    public override func isValid() -> Float {
+        return _isValid
+    }
     
     /**
      Process the 2 MRZ lines
