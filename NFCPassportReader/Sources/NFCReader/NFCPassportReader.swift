@@ -14,6 +14,7 @@ public protocol NFCPassportReaderDelegate: class {
     
     func reader(didBecomeActive session: NFCTagReaderSession)
     func reader(didFailedWith error: NFCError)
+    func reader(didSuccededWith data: NFCData)
     
 }
 
@@ -26,6 +27,10 @@ public class NFCPassportReader {
     
     private let mrzData: MRZData
     
+    private var disposable: Disposable?
+    
+    private var _nfcData: MutableProperty<NFCData> = MutableProperty(NFCData())
+    
     init(mrzData: MRZData) {
         
         self.mrzData = mrzData
@@ -33,17 +38,73 @@ public class NFCPassportReader {
         
     }
     
+    public func start() {
+        
+        session.start()
+        
+    }
+    
     private func performFlow(tag: NFCTag, passportTag: NFCISO7816Tag) {
         
-        let connectionProducer = session.connectProducer(to: tag, passportTag: passportTag)
         let mrz = mrzData
         
-        let x = connectionProducer
+        disposable?.dispose()
+        let flow = session.connectProducer(to: tag, passportTag: passportTag)
             .flatMap(.latest, NFCSelectCommand.performCommand(tag:))
             .map { ($0, mrz) }
             .flatMap(.latest, { NFCBacAuthCommand.performCommand(tag: $0, mrzData: $1) })
             .flatMap(.latest, { NFCMutualAuthCommand.performCommand(tag: $0.0, response: $0.1) })
+            .flatMap(.latest, { NFCReadDGCommand.performCommand(tag: $0.0, dataGroup: .dg2, sessionKeys: $0.1) })
+            .flatMap(.latest, { NFCExtractDataCommand.performCommand(tag: $0.0, sessionKeys: $0.1, maxLength: $0.2) })
+            .flatMap(.latest, parseDG2(tag:data:sessionKeys:))
+            .flatMap(.latest, { NFCReadDGCommand.performCommand(tag: $0.0, dataGroup: .dg11, sessionKeys: $0.1) })
+            .flatMap(.latest, { NFCExtractDataCommand.performCommand(tag: $0.0, sessionKeys: $0.1, maxLength: $0.2) })
+            .flatMap(.latest, parseDG11(tag:data:sessionKeys:))
         
+        
+        
+        
+        
+    }
+    
+    private func parseDG2(tag: NFCISO7816Tag, data: Data, sessionKeys: SessionKeys) -> SignalProducer<(NFCISO7816Tag, SessionKeys), NFCError> {
+        
+        return SignalProducer { [weak self] observer, lifetime in
+            
+            guard let dg = try? DataGroup2(data.bytes) else {
+                observer.send(error: .invalidCommand)
+                return
+            }
+            
+            self?._nfcData.modify { data in
+                data = data.from(dg2: dg)
+            }
+            
+            observer.send(value: (tag, sessionKeys))
+            observer.sendCompleted()
+            
+        }
+        
+        
+    }
+    
+    private func parseDG11(tag: NFCISO7816Tag, data: Data, sessionKeys: SessionKeys) -> SignalProducer<(NFCISO7816Tag, SessionKeys), NFCError> {
+        
+        return SignalProducer { [weak self] observer, lifetime in
+            
+            guard let dg = try? DataGroup11(data.bytes) else {
+                observer.send(error: .invalidCommand)
+                return
+            }
+            
+            self?._nfcData.modify { data in
+                data = data.from(dg11: dg)
+            }
+            
+            observer.send(value: (tag, sessionKeys))
+            observer.sendCompleted()
+            
+        }
         
     }
     

@@ -12,13 +12,7 @@ import ReactiveSwift
 @available(iOS 14.0, *)
 class NFCMutualAuthCommand {
     
-    struct MutualAuthResult {
-        let kSessMac: [UInt8]
-        let kSessEnc: [UInt8]
-        let seq: [UInt8]
-    }
-    
-    static func performCommand(tag: NFCISO7816Tag, response: NFCBacAuthCommand.BacAuthResult) -> SignalProducer<(NFCISO7816Tag, MutualAuthResult), NFCError> {
+    static func performCommand(tag: NFCISO7816Tag, response: NFCBacAuthCommand.BacAuthResult) -> SignalProducer<(NFCISO7816Tag, SessionKeys), NFCError> {
         
         return SignalProducer { observer, lifetime in
             
@@ -58,7 +52,7 @@ class NFCMutualAuthCommand {
                 let seq = decResp[4..<8].bytes + decResp[12..<16].bytes
             
                 
-                let result = MutualAuthResult(kSessMac: kSessMac, kSessEnc: kSessEnc, seq: seq)
+                let result = SessionKeys(kSessMac: kSessMac, kSessEnc: kSessEnc, seq: seq)
 
                 observer.send(value: (tag, result))
                 observer.sendCompleted()
