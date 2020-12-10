@@ -30,6 +30,14 @@ class NFCSession: NSObject {
     
     weak var delegate: NFCSessionDelegate?
     
+    /// the message to display the progress
+    var message: String? {
+        didSet {
+            guard let message = message else { return }
+            session?.alertMessage = message
+        }
+    }
+    
     func start() {
         
         guard let session = session else {
@@ -38,6 +46,12 @@ class NFCSession: NSObject {
         }
         
         session.begin()
+        
+    }
+    
+    func finish() {
+        
+        session?.invalidate()
         
     }
     
@@ -68,8 +82,19 @@ extension NFCSession: NFCTagReaderSessionDelegate {
     }
     
     func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
-        session.invalidate()
-        delegate?.session(didFailedWith: .invalidated)
+       
+        guard let error = error as? NFCReaderError else {
+            delegate?.session(didFailedWith: .invalidated)
+            return
+        }
+        
+        switch error.code {
+        case .readerSessionInvalidationErrorFirstNDEFTagRead, .readerSessionInvalidationErrorUserCanceled:
+            break
+        default:
+            delegate?.session(didFailedWith: .invalidated)
+        }
+        
     }
     
     func tagReaderSession(_ session: NFCTagReaderSession, didDetect tags: [NFCTag]) {

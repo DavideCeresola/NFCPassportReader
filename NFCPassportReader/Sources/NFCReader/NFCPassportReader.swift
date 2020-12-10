@@ -48,17 +48,31 @@ public class NFCPassportReader {
         
         let mrz = mrzData
         
+        let progressBlock: ((Double) -> Void) = { [weak self] progress in
+            self?.updateProgress(progress)
+        }
+        
         let flow = session.connectProducer(to: tag, passportTag: passportTag)
-            .flatMap(.latest, NFCSelectCommand.performCommand(tag:))
-            .map { ($0, mrz) }
+            .flatMap(.latest, NFCSelectCommand.performCommand(tag:)).map { ($0, mrz) }
+            .progress(1.0 / 9.0, progressBlock: progressBlock)
             .flatMap(.latest, { NFCBacAuthCommand.performCommand(tag: $0, mrzData: $1) })
+            .progress(2.0 / 9.0, progressBlock: progressBlock)
             .flatMap(.latest, { NFCMutualAuthCommand.performCommand(tag: $0.0, response: $0.1) })
+            .progress(3.0 / 9.0, progressBlock: progressBlock)
             .flatMap(.latest, { NFCReadDGCommand.performCommand(tag: $0.0, dataGroup: .dg2, sessionKeys: $0.1) })
-            .flatMap(.latest, { NFCExtractDataCommand.performCommand(tag: $0.0, sessionKeys: $0.1, maxLength: $0.2) })
+            .progress(4.0 / 9.0, progressBlock: progressBlock)
+            .flatMap(.latest, { NFCExtractDataCommand.performCommand(tag: $0.0,
+                                                                     sessionKeys: $0.1,
+                                                                     maxLength: $0.2) })
+            .progress(5.0 / 9.0, progressBlock: progressBlock)
             .flatMap(.latest, parseDG2(tag:data:sessionKeys:))
+            .progress(6.0 / 9.0, progressBlock: progressBlock)
             .flatMap(.latest, { NFCReadDGCommand.performCommand(tag: $0.0, dataGroup: .dg11, sessionKeys: $0.1) })
+            .progress(7.0 / 9.0, progressBlock: progressBlock)
             .flatMap(.latest, { NFCExtractDataCommand.performCommand(tag: $0.0, sessionKeys: $0.1, maxLength: $0.2) })
+            .progress(8.0 / 9.0, progressBlock: progressBlock)
             .flatMap(.latest, parseDG11(tag:data:sessionKeys:))
+            .progress(9.0 / 9.0, progressBlock: progressBlock)
         
         disposable.inner = flow
             .on(failed: { [weak self] error in
@@ -68,6 +82,7 @@ public class NFCPassportReader {
                 guard let self = self else {
                     return
                 }
+                self.session.finish()
                 self.delegate?.reader(didSuccededWith: self._nfcData.value)
             })
             .start()
@@ -115,6 +130,25 @@ public class NFCPassportReader {
         
     }
     
+    private func updateProgress(_ progress: Double) {
+        
+        print("updating progress:", progress)
+        let message: String
+        
+        if progress < 0.5 {
+            message = "😐 25%\nScan in progress"
+        } else if progress < 0.75 {
+            message = "🙂 55%\nScan in progress"
+        } else if progress < 1 {
+            message = "😃 70%\nScan in progress"
+        } else {
+            message = "🤩 100%\nScan in progress"
+        }
+        
+        session.message = message
+        
+    }
+    
 }
 
 @available(iOS 14.0, *)
@@ -132,5 +166,17 @@ extension NFCPassportReader: NFCSessionDelegate {
         performFlow(tag: tag, passportTag: passportTag)
     }
     
+    
+}
+
+extension SignalProducer {
+    
+    func progress(_ progress: Double, progressBlock: ((Double) -> Void)? = nil) -> SignalProducer<Value, Error> {
+        
+        return self.on(completed: {
+            progressBlock?(progress)
+        })
+    
+    }
     
 }
