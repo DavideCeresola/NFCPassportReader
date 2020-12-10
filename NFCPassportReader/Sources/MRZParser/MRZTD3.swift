@@ -51,6 +51,14 @@ public class MRZTD3: MRZParser {
     // start 44, len 1 - validating passport number, date of birth, expiration date
     private var dataIsValid = false
     
+    /// Get current read data
+    public var parsedData: MRZData {
+        return .init(mrz: parsedMRZ,
+                     birthDate: MRZTD3.stringFromDate(dateOfBirth),
+                     expirationDate: MRZTD3.stringFromDate(expirationDate),
+                     documentNumber: passportNumber)
+    }
+    
     
     /**
      Convenience method for getting all data in a dictionary

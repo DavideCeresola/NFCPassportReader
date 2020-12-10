@@ -10,7 +10,7 @@ import Foundation
 
 public class MRZParser : NSObject {
     
-    private let parsedMRZ: String
+    let parsedMRZ: String
 
     public init(scan: String, debug: Bool = false) {
         parsedMRZ = scan

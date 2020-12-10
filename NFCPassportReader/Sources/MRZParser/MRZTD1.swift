@@ -51,6 +51,14 @@ public class MRZTD1: MRZParser {
     public var lastName: String = ""
     /// The firstname from the 1st line of the MRZ (start first << len 30)
     public var firstName: String = ""
+    
+    /// Get current read data
+    public var parsedData: MRZData {
+        return .init(mrz: parsedMRZ,
+                     birthDate: MRZTD1.stringFromDate(dateOfBirth),
+                     expirationDate: MRZTD1.stringFromDate(expirationDate),
+                     documentNumber: passportNumber)
+    }
 
     
     
