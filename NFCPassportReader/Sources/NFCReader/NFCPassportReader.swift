@@ -12,7 +12,7 @@ import ReactiveSwift
 @available(iOS 14.0, *)
 public protocol NFCPassportReaderDelegate: class {
     
-    func reader(didBecomeActive session: NFCTagReaderSession)
+    func readerDidBecomeActive()
     func reader(didFailedWith error: NFCError)
     func reader(didSuccededWith data: NFCData)
     
@@ -27,11 +27,11 @@ public class NFCPassportReader {
     
     private let mrzData: MRZData
     
-    private var disposable: Disposable?
+    private lazy var disposable: SerialDisposable = .init()
     
     private var _nfcData: MutableProperty<NFCData> = MutableProperty(NFCData())
     
-    init(mrzData: MRZData) {
+    public init(mrzData: MRZData) {
         
         self.mrzData = mrzData
         session.delegate = self
@@ -48,7 +48,6 @@ public class NFCPassportReader {
         
         let mrz = mrzData
         
-        disposable?.dispose()
         let flow = session.connectProducer(to: tag, passportTag: passportTag)
             .flatMap(.latest, NFCSelectCommand.performCommand(tag:))
             .map { ($0, mrz) }
@@ -61,9 +60,17 @@ public class NFCPassportReader {
             .flatMap(.latest, { NFCExtractDataCommand.performCommand(tag: $0.0, sessionKeys: $0.1, maxLength: $0.2) })
             .flatMap(.latest, parseDG11(tag:data:sessionKeys:))
         
-        
-        
-        
+        disposable.inner = flow
+            .on(failed: { [weak self] error in
+                self?.delegate?.reader(didFailedWith: error)
+            })
+            .on(completed: { [weak self] in
+                guard let self = self else {
+                    return
+                }
+                self.delegate?.reader(didSuccededWith: self._nfcData.value)
+            })
+            .start()
         
     }
     
@@ -114,7 +121,7 @@ public class NFCPassportReader {
 extension NFCPassportReader: NFCSessionDelegate {
     
     func session(didBecomeActive session: NFCTagReaderSession) {
-        delegate?.reader(didBecomeActive: session)
+        delegate?.readerDidBecomeActive()
     }
     
     func session(didFailedWith error: NFCError) {
