@@ -21,12 +21,8 @@ protocol NFCSessionDelegate: class {
 @available(iOS 13.0, *)
 class NFCSession: NSObject {
     
-    private lazy var session: NFCTagReaderSession? = {
-        
-        let session = NFCTagReaderSession(pollingOption: .iso14443, delegate: self)
-        return session
-
-    }()
+    /// session that needs to be recreated every time
+    private var session: NFCTagReaderSession?
     
     weak var delegate: NFCSessionDelegate?
     
@@ -40,10 +36,12 @@ class NFCSession: NSObject {
     
     func start() {
         
-        guard let session = session else {
+        guard let session = NFCTagReaderSession(pollingOption: .iso14443, delegate: self) else {
             delegate?.session(didFailedWith: .cannotOpenSession)
             return
         }
+        
+        self.session = session
         
         session.begin()
         
@@ -52,6 +50,7 @@ class NFCSession: NSObject {
     func finish() {
         
         session?.invalidate()
+        session = nil
         
     }
     
@@ -82,6 +81,10 @@ extension NFCSession: NFCTagReaderSessionDelegate {
     }
     
     func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
+        
+        defer {
+            finish()
+        }
        
         guard let error = error as? NFCReaderError else {
             delegate?.session(didFailedWith: .invalidated)
