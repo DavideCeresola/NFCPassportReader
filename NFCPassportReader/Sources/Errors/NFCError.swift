@@ -9,10 +9,16 @@ import Foundation
 
 public enum NFCError: Error {
     
-    case cannotOpenSession
-    case invalidated
+    /// used when an user tap on cancel
+    case cancelled
+    
+    /// used when an user approach the device to a unrecognized tag
     case invalidTag
-    case cannotConnectToTag
+    
+    /// used when the session raised an error
+    case connectionError
+    
+    /// used when there is an error through the reading flow
     case invalidCommand
     
 }

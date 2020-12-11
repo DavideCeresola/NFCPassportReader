@@ -29,8 +29,9 @@
 		A559F7AC25825D2B00B177A4 /* NFCCommandUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F7AB25825D2B00B177A4 /* NFCCommandUtils.swift */; };
 		A559F7B22582648F00B177A4 /* ASN1.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F7B12582648F00B177A4 /* ASN1.swift */; };
 		A559F7B52582658100B177A4 /* NFCData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F7B42582658100B177A4 /* NFCData.swift */; };
-		A559F7B8258265DE00B177A4 /* DatagroupParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F7B7258265DE00B177A4 /* DatagroupParser.swift */; };
+		A559F7B8258265DE00B177A4 /* Datagroups.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F7B7258265DE00B177A4 /* Datagroups.swift */; };
 		A559F7BC2582692B00B177A4 /* SessionKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F7BB2582692B00B177A4 /* SessionKeys.swift */; };
+		A5FB13332582999800537172 /* SignalProducer+Progress.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5FB13322582999800537172 /* SignalProducer+Progress.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,8 +59,9 @@
 		A559F7AB25825D2B00B177A4 /* NFCCommandUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCCommandUtils.swift; sourceTree = "<group>"; };
 		A559F7B12582648F00B177A4 /* ASN1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASN1.swift; sourceTree = "<group>"; };
 		A559F7B42582658100B177A4 /* NFCData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCData.swift; sourceTree = "<group>"; };
-		A559F7B7258265DE00B177A4 /* DatagroupParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatagroupParser.swift; sourceTree = "<group>"; };
+		A559F7B7258265DE00B177A4 /* Datagroups.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Datagroups.swift; sourceTree = "<group>"; };
 		A559F7BB2582692B00B177A4 /* SessionKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionKeys.swift; sourceTree = "<group>"; };
+		A5FB13322582999800537172 /* SignalProducer+Progress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalProducer+Progress.swift"; sourceTree = "<group>"; };
 		A695B27B2171FA292FDF1731 /* libPods-NFCPassportReader.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NFCPassportReader.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A94071D89D756E4D2A54382C /* Pods-NFCPassportReader.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NFCPassportReader.debug.xcconfig"; path = "Target Support Files/Pods-NFCPassportReader/Pods-NFCPassportReader.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -172,6 +174,7 @@
 				A559F76D258223D600B177A4 /* StringProtocol+Hex.swift */,
 				A559F771258223F500B177A4 /* Data+Encoding.swift */,
 				A559F7932582307900B177A4 /* Data+XOR.swift */,
+				A5FB13322582999800537172 /* SignalProducer+Progress.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -209,7 +212,7 @@
 		A559F7AF2582645100B177A4 /* Parser */ = {
 			isa = PBXGroup;
 			children = (
-				A559F7B7258265DE00B177A4 /* DatagroupParser.swift */,
+				A559F7B7258265DE00B177A4 /* Datagroups.swift */,
 			);
 			path = Parser;
 			sourceTree = "<group>";
@@ -346,8 +349,9 @@
 				A559F76E258223D600B177A4 /* StringProtocol+Hex.swift in Sources */,
 				A559F7812582269B00B177A4 /* NFCSession.swift in Sources */,
 				A559F7A925825C7400B177A4 /* NFCExtractDataCommand.swift in Sources */,
+				A5FB13332582999800537172 /* SignalProducer+Progress.swift in Sources */,
 				A559F7A62582396A00B177A4 /* NFCReadDGCommand.swift in Sources */,
-				A559F7B8258265DE00B177A4 /* DatagroupParser.swift in Sources */,
+				A559F7B8258265DE00B177A4 /* Datagroups.swift in Sources */,
 				A559F68425814DC100B177A4 /* MRZData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

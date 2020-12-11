@@ -37,9 +37,11 @@ class NFCSession: NSObject {
     func start() {
         
         guard let session = NFCTagReaderSession(pollingOption: .iso14443, delegate: self) else {
-            delegate?.session(didFailedWith: .cannotOpenSession)
+            delegate?.session(didFailedWith: .connectionError)
             return
         }
+        
+        session.alertMessage = "Bring the top of your smartphone close to your document and wait a few seconds."
         
         self.session = session
         
@@ -61,7 +63,7 @@ class NFCSession: NSObject {
             self?.session?.connect(to: tag) { (error) in
                 if let _ = error {
                     self?.session?.invalidate()
-                    observer.send(error: .cannotConnectToTag)
+                    observer.send(error: .connectionError)
                 } else {
                     observer.send(value: passportTag)
                     observer.sendCompleted()
@@ -81,21 +83,19 @@ extension NFCSession: NFCTagReaderSessionDelegate {
     }
     
     func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
-        
-        defer {
-            finish()
-        }
        
         guard let error = error as? NFCReaderError else {
-            delegate?.session(didFailedWith: .invalidated)
+            delegate?.session(didFailedWith: .connectionError)
+            finish()
             return
         }
         
         switch error.code {
-        case .readerSessionInvalidationErrorFirstNDEFTagRead, .readerSessionInvalidationErrorUserCanceled:
+        case .readerSessionInvalidationErrorUserCanceled:
             break
         default:
-            delegate?.session(didFailedWith: .invalidated)
+            finish()
+            delegate?.session(didFailedWith: .connectionError)
         }
         
     }

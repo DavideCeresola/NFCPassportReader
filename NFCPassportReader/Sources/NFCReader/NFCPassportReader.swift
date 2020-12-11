@@ -12,7 +12,6 @@ import ReactiveSwift
 @available(iOS 14.0, *)
 public protocol NFCPassportReaderDelegate: class {
     
-    func readerDidBecomeActive()
     func reader(didFailedWith error: NFCError)
     func reader(didSuccededWith data: NFCData)
     
@@ -26,14 +25,16 @@ public class NFCPassportReader {
     public weak var delegate: NFCPassportReaderDelegate?
     
     private let mrzData: MRZData
+    private let displayMessage: String?
     
     private lazy var disposable: SerialDisposable = .init()
     
     private var _nfcData: MutableProperty<NFCData> = MutableProperty(NFCData())
     
-    public init(mrzData: MRZData) {
+    public init(mrzData: MRZData, displayMessage: String? = nil) {
         
         self.mrzData = mrzData
+        self.displayMessage = displayMessage
         session.delegate = self
         
     }
@@ -52,27 +53,27 @@ public class NFCPassportReader {
             self?.updateProgress(progress)
         }
         
+        let stepsNumber: Double = 9
+        
         let flow = session.connectProducer(to: tag, passportTag: passportTag)
             .flatMap(.latest, NFCSelectCommand.performCommand(tag:)).map { ($0, mrz) }
-            .progress(1.0 / 9.0, progressBlock: progressBlock)
+            .progress(1.0 / stepsNumber, progressBlock: progressBlock)
             .flatMap(.latest, { NFCBacAuthCommand.performCommand(tag: $0, mrzData: $1) })
-            .progress(2.0 / 9.0, progressBlock: progressBlock)
+            .progress(2.0 / stepsNumber, progressBlock: progressBlock)
             .flatMap(.latest, { NFCMutualAuthCommand.performCommand(tag: $0.0, response: $0.1) })
-            .progress(3.0 / 9.0, progressBlock: progressBlock)
+            .progress(3.0 / stepsNumber, progressBlock: progressBlock)
             .flatMap(.latest, { NFCReadDGCommand.performCommand(tag: $0.0, dataGroup: .dg2, sessionKeys: $0.1) })
-            .progress(4.0 / 9.0, progressBlock: progressBlock)
-            .flatMap(.latest, { NFCExtractDataCommand.performCommand(tag: $0.0,
-                                                                     sessionKeys: $0.1,
-                                                                     maxLength: $0.2) })
-            .progress(5.0 / 9.0, progressBlock: progressBlock)
-            .flatMap(.latest, parseDG2(tag:data:sessionKeys:))
-            .progress(6.0 / 9.0, progressBlock: progressBlock)
-            .flatMap(.latest, { NFCReadDGCommand.performCommand(tag: $0.0, dataGroup: .dg11, sessionKeys: $0.1) })
-            .progress(7.0 / 9.0, progressBlock: progressBlock)
+            .progress(4.0 / stepsNumber, progressBlock: progressBlock)
             .flatMap(.latest, { NFCExtractDataCommand.performCommand(tag: $0.0, sessionKeys: $0.1, maxLength: $0.2) })
-            .progress(8.0 / 9.0, progressBlock: progressBlock)
+            .progress(5.0 / stepsNumber, progressBlock: progressBlock)
+            .flatMap(.latest, parseDG2(tag:data:sessionKeys:))
+            .progress(6.0 / stepsNumber, progressBlock: progressBlock)
+            .flatMap(.latest, { NFCReadDGCommand.performCommand(tag: $0.0, dataGroup: .dg11, sessionKeys: $0.1) })
+            .progress(7.0 / stepsNumber, progressBlock: progressBlock)
+            .flatMap(.latest, { NFCExtractDataCommand.performCommand(tag: $0.0, sessionKeys: $0.1, maxLength: $0.2) })
+            .progress(8.0 / stepsNumber, progressBlock: progressBlock)
             .flatMap(.latest, parseDG11(tag:data:sessionKeys:))
-            .progress(9.0 / 9.0, progressBlock: progressBlock)
+            .progress(9.0 / stepsNumber, progressBlock: progressBlock)
         
         disposable.inner = flow
             .on(failed: { [weak self] error in
@@ -88,6 +89,49 @@ public class NFCPassportReader {
             .start()
         
     }
+    
+    private func updateProgress(_ progress: Double) {
+        
+        let percentage = Int(progress * 100.0)
+        let message: String
+        let percentageMessage = "\(percentage)%\nScan in progress"
+        
+        if progress < 0.5 {
+            message = "😐 \(percentageMessage)"
+        } else if progress < 0.75 {
+            message = "🙂 \(percentageMessage)"
+        } else if progress < 1 {
+            message = "😃 \(percentageMessage)"
+        } else {
+            message = "🤩 \(percentageMessage)"
+        }
+        
+        session.message = message
+        
+    }
+    
+}
+
+@available(iOS 14.0, *)
+extension NFCPassportReader: NFCSessionDelegate {
+    
+    func session(didBecomeActive session: NFCTagReaderSession) {
+        self.session.message = displayMessage
+    }
+    
+    func session(didFailedWith error: NFCError) {
+        delegate?.reader(didFailedWith: error)
+    }
+    
+    func session(didFoundTag tag: NFCTag, passportTag: NFCISO7816Tag) {
+        performFlow(tag: tag, passportTag: passportTag)
+    }
+    
+}
+
+// MARK: - Parser
+@available(iOS 14.0, *)
+extension NFCPassportReader {
     
     private func parseDG2(tag: NFCISO7816Tag, data: Data, sessionKeys: SessionKeys) -> SignalProducer<(NFCISO7816Tag, SessionKeys), NFCError> {
         
@@ -128,55 +172,6 @@ public class NFCPassportReader {
             
         }
         
-    }
-    
-    private func updateProgress(_ progress: Double) {
-        
-        print("updating progress:", progress)
-        let message: String
-        
-        if progress < 0.5 {
-            message = "😐 25%\nScan in progress"
-        } else if progress < 0.75 {
-            message = "🙂 55%\nScan in progress"
-        } else if progress < 1 {
-            message = "😃 70%\nScan in progress"
-        } else {
-            message = "🤩 100%\nScan in progress"
-        }
-        
-        session.message = message
-        
-    }
-    
-}
-
-@available(iOS 14.0, *)
-extension NFCPassportReader: NFCSessionDelegate {
-    
-    func session(didBecomeActive session: NFCTagReaderSession) {
-        delegate?.readerDidBecomeActive()
-    }
-    
-    func session(didFailedWith error: NFCError) {
-        delegate?.reader(didFailedWith: error)
-    }
-    
-    func session(didFoundTag tag: NFCTag, passportTag: NFCISO7816Tag) {
-        performFlow(tag: tag, passportTag: passportTag)
-    }
-    
-    
-}
-
-extension SignalProducer {
-    
-    func progress(_ progress: Double, progressBlock: ((Double) -> Void)? = nil) -> SignalProducer<Value, Error> {
-        
-        return self.on(completed: {
-            progressBlock?(progress)
-        })
-    
     }
     
 }

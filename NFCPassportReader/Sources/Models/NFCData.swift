@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import Contacts
 
 @available(iOS 13, *)
 public struct NFCData {
@@ -23,7 +24,8 @@ public struct NFCData {
     public private(set) var proofOfCitizenship : String?
     public private(set) var tdNumbers : String?
     public private(set) var custodyInfo : String?
-    public private(set) var imageData : UIImage?
+    public private(set) var image : UIImage?
+    public private(set) var data : [String: String]?
     
     func from(dg11 datagroup: DataGroup11) -> NFCData {
         
@@ -39,7 +41,8 @@ public struct NFCData {
                        proofOfCitizenship: datagroup.proofOfCitizenship,
                        tdNumbers: datagroup.tdNumbers,
                        custodyInfo: datagroup.custodyInfo,
-                       imageData: self.imageData)
+                       image: self.image,
+                       data: self.data)
         
     }
     
@@ -57,7 +60,27 @@ public struct NFCData {
                        proofOfCitizenship: self.proofOfCitizenship,
                        tdNumbers: self.tdNumbers,
                        custodyInfo: self.custodyInfo,
-                       imageData: datagroup.getImage())
+                       image: datagroup.getImage(),
+                       data: self.data)
+        
+    }
+    
+    func from(dg1 datagroup: DataGroup1) -> NFCData {
+        
+        return NFCData(fullName: self.fullName,
+                       personalNumber: self.personalNumber,
+                       dateOfBirth: self.dateOfBirth,
+                       placeOfBirth: self.placeOfBirth,
+                       address: self.address,
+                       telephone: self.telephone,
+                       profession: self.profession,
+                       title: self.title,
+                       personalSummary: self.personalSummary,
+                       proofOfCitizenship: self.proofOfCitizenship,
+                       tdNumbers: self.tdNumbers,
+                       custodyInfo: self.custodyInfo,
+                       image: self.image,
+                       data: datagroup.elements)
         
     }
     

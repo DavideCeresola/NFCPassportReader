@@ -13,6 +13,7 @@ import ReactiveSwift
 class NFCReadDGCommand {
     
     enum DataGroup: UInt8 {
+        case dg1 = 1
         case dg2 = 2
         case dg11 = 11
     }
