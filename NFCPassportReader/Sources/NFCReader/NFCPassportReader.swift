@@ -142,12 +142,16 @@ extension NFCPassportReader {
                 return
             }
             
-            self?._nfcData.modify { data in
-                data = data.from(dg2: dg)
+            self?._nfcData.value.from(dg2: dg) { [weak self] (result) in
+                switch result {
+                case .success(let newData):
+                    self?._nfcData.value = newData
+                    observer.send(value: (tag, sessionKeys))
+                    observer.sendCompleted()
+                case .failure(let error):
+                    observer.send(error: error)
+                }
             }
-            
-            observer.send(value: (tag, sessionKeys))
-            observer.sendCompleted()
             
         }
         
@@ -163,8 +167,15 @@ extension NFCPassportReader {
                 return
             }
             
-            self?._nfcData.modify { data in
-                data = data.from(dg11: dg)
+            self?._nfcData.value.from(dg11: dg) { [weak self] (result) in
+                switch result {
+                case .success(let newData):
+                    self?._nfcData.value = newData
+                    observer.send(value: (tag, sessionKeys))
+                    observer.sendCompleted()
+                case .failure(let error):
+                    observer.send(error: error)
+                }
             }
             
             observer.send(value: (tag, sessionKeys))

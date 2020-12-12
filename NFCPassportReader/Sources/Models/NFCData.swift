@@ -12,7 +12,7 @@ import CoreLocation
 @available(iOS 13, *)
 public struct NFCData {
     
-    struct Address {
+    public struct Address {
         
     }
     
@@ -22,7 +22,7 @@ public struct NFCData {
     public private(set) var dateOfBirth : Date?
     public private(set) var cityOfBirth : String?
     public private(set) var provinceOfBirth : String?
-    public private(set) var residenceAddress, residenceProvince, residenceCity : String?
+    public private(set) var residenceAddress : Address?
     public private(set) var telephone : String?
     public private(set) var profession : String?
     public private(set) var title : String?
@@ -34,17 +34,14 @@ public struct NFCData {
     public private(set) var data : [String: String]?
     public private(set) var rawAddress : String?
     
-    func from(dg11 datagroup: DataGroup11, completion: (Result<NFCData, NFCError>) -> Void) {
+    func from(dg11 datagroup: DataGroup11, completion: ((Result<NFCData, NFCError>) -> Void)? = nil) {
         
-        let newData = NFCData(name: parseName(datagroup.fullName),
+        var newData = NFCData(name: parseName(datagroup.fullName),
                        surname: parseSurname(datagroup.fullName),
                        personalNumber: datagroup.personalNumber,
                        dateOfBirth: parseDate(datagroup.dateOfBirth),
                        cityOfBirth: parseCityOfBirth(datagroup.placeOfBirth),
                        provinceOfBirth: parseProvinceOfBirth(datagroup.placeOfBirth),
-                       residenceAddress: parseResidenceAddress(datagroup.address),
-                       residenceProvince: parseResidenceProvince(datagroup.address),
-                       residenceCity: parseResidenceCity(datagroup.address),
                        telephone: datagroup.telephone,
                        profession: datagroup.profession,
                        title: datagroup.title,
@@ -56,11 +53,19 @@ public struct NFCData {
                        data: self.data,
                        rawAddress: datagroup.address)
         
-        completion(.success(newData))
+        parseResidenceAddress(datagroup.address) { (result) in
+            switch result {
+            case .success(let address):
+                newData.residenceAddress = address
+                completion?(.success(newData))
+            case .failure(let error):
+                completion?(.failure(error))
+            }
+        }
         
     }
     
-    func from(dg2 datagroup: DataGroup2, completion: (Result<NFCData, NFCError>) -> Void) {
+    func from(dg2 datagroup: DataGroup2, completion: ((Result<NFCData, NFCError>) -> Void)? = nil) {
         
         let newData = NFCData(name: self.name,
                        surname: self.surname,
@@ -69,8 +74,6 @@ public struct NFCData {
                        cityOfBirth: self.cityOfBirth,
                        provinceOfBirth: self.provinceOfBirth,
                        residenceAddress: self.residenceAddress,
-                       residenceProvince: self.residenceProvince,
-                       residenceCity: self.residenceCity,
                        telephone: self.telephone,
                        profession: self.profession,
                        title: self.title,
@@ -82,11 +85,11 @@ public struct NFCData {
                        data: self.data,
                        rawAddress: self.rawAddress)
         
-        completion(.success(newData))
+        completion?(.success(newData))
         
     }
     
-    func from(dg1 datagroup: DataGroup1, completion: (Result<NFCData, NFCError>) -> Void) {
+    func from(dg1 datagroup: DataGroup1, completion: ((Result<NFCData, NFCError>) -> Void)? = nil) {
         
         let newData = NFCData(name: self.name,
                        surname: self.surname,
@@ -95,8 +98,6 @@ public struct NFCData {
                        cityOfBirth: self.cityOfBirth,
                        provinceOfBirth: self.provinceOfBirth,
                        residenceAddress: self.residenceAddress,
-                       residenceProvince: self.residenceProvince,
-                       residenceCity: self.residenceCity,
                        telephone: self.telephone,
                        profession: self.profession,
                        title: self.title,
@@ -108,7 +109,7 @@ public struct NFCData {
                        data: datagroup.elements,
                        rawAddress: self.rawAddress)
         
-        completion(.success(newData))
+        completion?(.success(newData))
         
     }
     
@@ -173,21 +174,24 @@ private extension NFCData {
         
     }
     
-    private func parseResidenceAddress(_ rawResidence: String?, completion: (Result<Address, NFCError>) -> Void) {
+    private func parseResidenceAddress(_ rawResidence: String?,
+                                       completion: ((Result<Address, NFCError>) -> Void)? = nil) {
         
         guard let residenceComponents = rawResidence?.replacingOccurrences(of: "<", with: " ") else {
-            completion(.failure(.invalidCommand))
+            completion?(.failure(.invalidCommand))
             return
         }
     
         let geocoder = CLGeocoder()
         geocoder.geocodeAddressString(residenceComponents) { (placemarks, error) in
             guard let placemark = placemarks?.first, error == nil else {
-                completion(.failure(.invalidCommand))
+                completion?(.failure(.invalidCommand))
                 return
             }
             
-            placemark.country
+            print("Placemark:", placemark)
+            completion?(.success(Address()))
+            
         }
         
     }
