@@ -10,9 +10,13 @@ import CoreNFC
 import ReactiveSwift
 
 @available(iOS 14.0, *)
-class NFCMutualAuthCommand {
+class NFCMutualAuthCommand: NFCCommand {
     
-    static func performCommand(tag: NFCISO7816Tag, response: NFCBacAuthCommand.BacAuthResult) -> SignalProducer<(NFCISO7816Tag, SessionKeys), NFCError> {
+    func performCommand(tag: NFCISO7816Tag, sessionKeys: SessionKeys?, param: Any?) -> SignalProducer<(NFCISO7816Tag, SessionKeys?, Any?), NFCError> {
+        
+        guard let response = param as? NFCBacAuthCommand.BacAuthResult else {
+            return .init(error: .invalidCommand)
+        }
         
         return SignalProducer { observer, lifetime in
             
@@ -54,12 +58,13 @@ class NFCMutualAuthCommand {
                 
                 let result = SessionKeys(kSessMac: kSessMac, kSessEnc: kSessEnc, seq: seq)
 
-                observer.send(value: (tag, result))
+                observer.send(value: (tag, result, nil))
                 observer.sendCompleted()
                 
             }
             
         }
+        
     }
     
 }

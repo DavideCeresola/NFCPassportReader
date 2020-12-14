@@ -29,7 +29,20 @@ public class NFCPassportReader {
     
     private lazy var disposable: SerialDisposable = .init()
     
-    private var _nfcData: MutableProperty<NFCData> = MutableProperty(NFCData())
+    private lazy var nfcData: NFCData = .init(mrzType: mrzData.mrzType)
+    
+    /// the current flow to perform
+    private lazy var flow: [NFCCommand] = [
+        NFCSelectCommand(),
+        NFCBacAuthCommand(mrzData: mrzData),
+        NFCMutualAuthCommand(),
+        NFCReadDGCommand(dataGroup: .dg2),
+        NFCExtractDataCommand(),
+        NFCParseDG2Command(nfcData: nfcData),
+        NFCReadDGCommand(dataGroup: .dg11),
+        NFCExtractDataCommand(),
+        NFCParseDG11Command(nfcData: nfcData)
+    ]
     
     public init(mrzData: MRZData, displayMessage: String? = nil) {
         
@@ -47,44 +60,33 @@ public class NFCPassportReader {
     
     private func performFlow(tag: NFCTag, passportTag: NFCISO7816Tag) {
         
-        let mrz = mrzData
-        
         let progressBlock: ((Double) -> Void) = { [weak self] progress in
             self?.updateProgress(progress)
         }
         
-        let stepsNumber: Double = 9
+        let stepsNumber = Double(flow.count)
         
-        let flow = session.connectProducer(to: tag, passportTag: passportTag)
-            .flatMap(.latest, NFCSelectCommand.performCommand(tag:)).map { ($0, mrz) }
-            .progress(1.0 / stepsNumber, progressBlock: progressBlock)
-            .flatMap(.latest, { NFCBacAuthCommand.performCommand(tag: $0, mrzData: $1) })
-            .progress(2.0 / stepsNumber, progressBlock: progressBlock)
-            .flatMap(.latest, { NFCMutualAuthCommand.performCommand(tag: $0.0, response: $0.1) })
-            .progress(3.0 / stepsNumber, progressBlock: progressBlock)
-            .flatMap(.latest, { NFCReadDGCommand.performCommand(tag: $0.0, dataGroup: .dg2, sessionKeys: $0.1) })
-            .progress(4.0 / stepsNumber, progressBlock: progressBlock)
-            .flatMap(.latest, { NFCExtractDataCommand.performCommand(tag: $0.0, sessionKeys: $0.1, maxLength: $0.2) })
-            .progress(5.0 / stepsNumber, progressBlock: progressBlock)
-            .flatMap(.latest, parseDG2(tag:data:sessionKeys:))
-            .progress(6.0 / stepsNumber, progressBlock: progressBlock)
-            .flatMap(.latest, { NFCReadDGCommand.performCommand(tag: $0.0, dataGroup: .dg11, sessionKeys: $0.1) })
-            .progress(7.0 / stepsNumber, progressBlock: progressBlock)
-            .flatMap(.latest, { NFCExtractDataCommand.performCommand(tag: $0.0, sessionKeys: $0.1, maxLength: $0.2) })
-            .progress(8.0 / stepsNumber, progressBlock: progressBlock)
-            .flatMap(.latest, parseDG11(tag:data:sessionKeys:))
-            .progress(9.0 / stepsNumber, progressBlock: progressBlock)
+        let connectProducer = session.connectProducer(to: tag, passportTag: passportTag)
+            .map { tag -> (NFCISO7816Tag, SessionKeys?, Any?) in (tag, nil, nil) }
         
-        disposable.inner = flow
+        let flowProducer = flow.enumerated().reduce(into: connectProducer) { (result, partial) in
+            result = result.flatMap(.latest, partial.element.performCommand(tag:sessionKeys:param:))
+                .progress(Double(partial.offset + 1) / stepsNumber, progressBlock: progressBlock)
+        }
+        
+        disposable.inner = flowProducer
             .on(failed: { [weak self] error in
+                self?.session.finish()
                 self?.delegate?.reader(didFailedWith: error)
             })
-            .on(completed: { [weak self] in
-                guard let self = self else {
+            .on(value: { [weak self] value in
+                guard let nfcData = value.2 as? NFCData else {
                     return
                 }
-                self.session.finish()
-                self.delegate?.reader(didSuccededWith: self._nfcData.value)
+                self?.delegate?.reader(didSuccededWith: nfcData)
+            })
+            .on(completed: { [weak self] in
+                self?.session.finish()
             })
             .start()
         
@@ -125,64 +127,6 @@ extension NFCPassportReader: NFCSessionDelegate {
     
     func session(didFoundTag tag: NFCTag, passportTag: NFCISO7816Tag) {
         performFlow(tag: tag, passportTag: passportTag)
-    }
-    
-}
-
-// MARK: - Parser
-@available(iOS 14.0, *)
-extension NFCPassportReader {
-    
-    private func parseDG2(tag: NFCISO7816Tag, data: Data, sessionKeys: SessionKeys) -> SignalProducer<(NFCISO7816Tag, SessionKeys), NFCError> {
-        
-        return SignalProducer { [weak self] observer, lifetime in
-            
-            guard let dg = try? DataGroup2(data.bytes) else {
-                observer.send(error: .invalidCommand)
-                return
-            }
-            
-            self?._nfcData.value.from(dg2: dg) { [weak self] (result) in
-                switch result {
-                case .success(let newData):
-                    self?._nfcData.value = newData
-                    observer.send(value: (tag, sessionKeys))
-                    observer.sendCompleted()
-                case .failure(let error):
-                    observer.send(error: error)
-                }
-            }
-            
-        }
-        
-        
-    }
-    
-    private func parseDG11(tag: NFCISO7816Tag, data: Data, sessionKeys: SessionKeys) -> SignalProducer<(NFCISO7816Tag, SessionKeys), NFCError> {
-        
-        return SignalProducer { [weak self] observer, lifetime in
-            
-            guard let dg = try? DataGroup11(data.bytes) else {
-                observer.send(error: .invalidCommand)
-                return
-            }
-            
-            self?._nfcData.value.from(dg11: dg) { [weak self] (result) in
-                switch result {
-                case .success(let newData):
-                    self?._nfcData.value = newData
-                    observer.send(value: (tag, sessionKeys))
-                    observer.sendCompleted()
-                case .failure(let error):
-                    observer.send(error: error)
-                }
-            }
-            
-            observer.send(value: (tag, sessionKeys))
-            observer.sendCompleted()
-            
-        }
-        
     }
     
 }

@@ -21,4 +21,7 @@ public enum NFCError: Error {
     /// used when there is an error through the reading flow
     case invalidCommand
     
+    /// used when address from cie is not identified
+    case invalidAddress
+    
 }

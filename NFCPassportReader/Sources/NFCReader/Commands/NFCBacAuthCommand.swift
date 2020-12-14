@@ -10,7 +10,7 @@ import CoreNFC
 import ReactiveSwift
 
 @available(iOS 14.0, *)
-class NFCBacAuthCommand {
+class NFCBacAuthCommand: NFCCommand {
     
     struct BacAuthResult {
         let apduMutua: Data
@@ -19,9 +19,15 @@ class NFCBacAuthCommand {
         let kIs: Data
     }
     
-    static func performCommand(tag: NFCISO7816Tag, mrzData: MRZData) -> SignalProducer<(NFCISO7816Tag, BacAuthResult), NFCError> {
+    private let mrzData: MRZData
+    
+    init(mrzData: MRZData) {
+        self.mrzData = mrzData
+    }
+    
+    func performCommand(tag: NFCISO7816Tag, sessionKeys: SessionKeys?, param: Any?) -> SignalProducer<(NFCISO7816Tag, SessionKeys?, Any?), NFCError> {
         
-        return SignalProducer { observer, lifetime in
+        return SignalProducer { [weak self] observer, lifetime in
             
             guard let apduChallenge = NFCISO7816APDU(data: "0084000008".hexaData) else {
                 observer.send(error: .invalidCommand)
@@ -32,6 +38,11 @@ class NFCBacAuthCommand {
 
                 let responseCode = String(format: "%02x%02x", status1, status2)
                 guard responseCode == "9000" else {
+                    observer.send(error: .invalidCommand)
+                    return
+                }
+                
+                guard let mrzData = self?.mrzData else {
                     observer.send(error: .invalidCommand)
                     return
                 }
@@ -95,7 +106,7 @@ class NFCBacAuthCommand {
                 apduMutaAuth.append(0x28)
 
                 let result = BacAuthResult(apduMutua: apduMutaAuth, bacEnc: bacEnc, bacMac: bacMac, kIs: kIs)
-                observer.send(value: (tag, result))
+                observer.send(value: (tag, nil, result))
                 observer.sendCompleted()
 
             }

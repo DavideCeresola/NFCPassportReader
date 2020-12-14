@@ -10,25 +10,30 @@ import CoreNFC
 import ReactiveSwift
 
 @available(iOS 14.0, *)
-class NFCExtractDataCommand {
+class NFCExtractDataCommand: NFCCommand {
     
-    static func performCommand(tag: NFCISO7816Tag,
-                               sessionKeys: SessionKeys,
-                               maxLength: Int) -> SignalProducer<(NFCISO7816Tag, Data, SessionKeys), NFCError> {
+    func performCommand(tag: NFCISO7816Tag, sessionKeys: SessionKeys?, param: Any?) -> SignalProducer<(NFCISO7816Tag, SessionKeys?, Any?), NFCError> {
+        
+        guard let maxLength = param as? Int, let sessionKeys = sessionKeys else {
+            return .init(error: .invalidCommand)
+        }
+        
+        return SignalProducer { observer, lifetime in
             
-            return SignalProducer { observer, lifetime in
+            NFCExtractDataCommand.extract(tag: tag, maxLength: maxLength, keys: sessionKeys) { (result) in
                 
-                extract(tag: tag, maxLength: maxLength, keys: sessionKeys) { (result) in
-                    switch result {
-                    case .success(let data):
-                        observer.send(value: (tag, data.0, data.1))
-                        observer.sendCompleted()
-                    case .failure(let error):
-                        observer.send(error: error)
-                    }
+                switch result {
+                case .success(let data):
+                    observer.send(value: (tag, data.1, data.0))
+                    observer.sendCompleted()
+                case .failure(let error):
+                    observer.send(error: error)
                 }
                 
             }
+            
+        }
+        
     }
     
     private static func extract(tag: NFCISO7816Tag,

@@ -56,7 +56,8 @@ public class MRZTD3: MRZParser {
         return .init(mrz: parsedMRZ,
                      birthDate: MRZTD3.stringFromDate(dateOfBirth),
                      expirationDate: MRZTD3.stringFromDate(expirationDate),
-                     documentNumber: passportNumber)
+                     documentNumber: passportNumber,
+                     mrzType: .td3)
     }
     
     

@@ -10,7 +10,7 @@ import CoreNFC
 import ReactiveSwift
 
 @available(iOS 14.0, *)
-class NFCReadDGCommand {
+class NFCReadDGCommand: NFCCommand {
     
     enum DataGroup: UInt8 {
         case dg1 = 1
@@ -18,12 +18,24 @@ class NFCReadDGCommand {
         case dg11 = 11
     }
     
-    static func performCommand(tag: NFCISO7816Tag,
-                               dataGroup: DataGroup,
-                               sessionKeys: SessionKeys)
-    -> SignalProducer<(NFCISO7816Tag, SessionKeys, Int), NFCError> {
+    private let dataGroup: DataGroup
+    
+    init(dataGroup: DataGroup) {
+        self.dataGroup = dataGroup
+    }
+    
+    func performCommand(tag: NFCISO7816Tag, sessionKeys: SessionKeys?, param: Any?) -> SignalProducer<(NFCISO7816Tag, SessionKeys?, Any?), NFCError> {
         
-        return SignalProducer { observer, lifetime in
+        guard let sessionKeys = sessionKeys else {
+            return .init(error: .invalidCommand)
+        }
+        
+        return SignalProducer { [weak self] observer, lifetime in
+            
+            guard let dataGroup = self?.dataGroup else {
+                observer.send(error: .invalidCommand)
+                return
+            }
             
             let somma: UInt8 = dataGroup.rawValue + 0x80
 
@@ -57,7 +69,7 @@ class NFCReadDGCommand {
                 let secureResponse = chunkLen.0
                 let newKeys = chunkLen.1
                 
-                guard let maxLen = parseLength(data: secureResponse) else {
+                guard let maxLen = NFCReadDGCommand.parseLength(data: secureResponse) else {
                     observer.send(error: .invalidCommand)
                     return
                 }

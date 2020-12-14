@@ -32,6 +32,9 @@
 		A559F7B8258265DE00B177A4 /* Datagroups.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F7B7258265DE00B177A4 /* Datagroups.swift */; };
 		A559F7BC2582692B00B177A4 /* SessionKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F7BB2582692B00B177A4 /* SessionKeys.swift */; };
 		A5FB13332582999800537172 /* SignalProducer+Progress.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5FB13322582999800537172 /* SignalProducer+Progress.swift */; };
+		A5FB148F2584E70200537172 /* NFCCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5FB148E2584E70200537172 /* NFCCommand.swift */; };
+		A5FB14922584ED5300537172 /* NFCParseDG2Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5FB14912584ED5300537172 /* NFCParseDG2Command.swift */; };
+		A5FB14962584ED6000537172 /* NFCParseDG11Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5FB14952584ED6000537172 /* NFCParseDG11Command.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -62,6 +65,9 @@
 		A559F7B7258265DE00B177A4 /* Datagroups.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Datagroups.swift; sourceTree = "<group>"; };
 		A559F7BB2582692B00B177A4 /* SessionKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionKeys.swift; sourceTree = "<group>"; };
 		A5FB13322582999800537172 /* SignalProducer+Progress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalProducer+Progress.swift"; sourceTree = "<group>"; };
+		A5FB148E2584E70200537172 /* NFCCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCCommand.swift; sourceTree = "<group>"; };
+		A5FB14912584ED5300537172 /* NFCParseDG2Command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCParseDG2Command.swift; sourceTree = "<group>"; };
+		A5FB14952584ED6000537172 /* NFCParseDG11Command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCParseDG11Command.swift; sourceTree = "<group>"; };
 		A695B27B2171FA292FDF1731 /* libPods-NFCPassportReader.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NFCPassportReader.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A94071D89D756E4D2A54382C /* Pods-NFCPassportReader.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NFCPassportReader.debug.xcconfig"; path = "Target Support Files/Pods-NFCPassportReader/Pods-NFCPassportReader.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -160,7 +166,6 @@
 		A559F76B2582238A00B177A4 /* NFCReader */ = {
 			isa = PBXGroup;
 			children = (
-				A559F7AF2582645100B177A4 /* Parser */,
 				A559F78825822CC800B177A4 /* Commands */,
 				A559F77D2582266E00B177A4 /* NFCPassportReader.swift */,
 				A559F7802582269B00B177A4 /* NFCSession.swift */,
@@ -190,7 +195,9 @@
 		A559F78825822CC800B177A4 /* Commands */ = {
 			isa = PBXGroup;
 			children = (
+				A559F7AF2582645100B177A4 /* Parser */,
 				A559F7AB25825D2B00B177A4 /* NFCCommandUtils.swift */,
+				A5FB148E2584E70200537172 /* NFCCommand.swift */,
 				A559F78C25822D4B00B177A4 /* NFCSelectCommand.swift */,
 				A559F78F25822F9900B177A4 /* NFCBacAuthCommand.swift */,
 				A559F7A12582330100B177A4 /* NFCMutualAuthCommand.swift */,
@@ -213,6 +220,8 @@
 			isa = PBXGroup;
 			children = (
 				A559F7B7258265DE00B177A4 /* Datagroups.swift */,
+				A5FB14912584ED5300537172 /* NFCParseDG2Command.swift */,
+				A5FB14952584ED6000537172 /* NFCParseDG11Command.swift */,
 			);
 			path = Parser;
 			sourceTree = "<group>";
@@ -330,6 +339,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5FB14962584ED6000537172 /* NFCParseDG11Command.swift in Sources */,
 				A559F6432581445800B177A4 /* MRZTD1.swift in Sources */,
 				A559F7AC25825D2B00B177A4 /* NFCCommandUtils.swift in Sources */,
 				A559F785258228CA00B177A4 /* NFCError.swift in Sources */,
@@ -339,11 +349,13 @@
 				A559F6442581445800B177A4 /* MRZTD3.swift in Sources */,
 				A559F798258230AC00B177A4 /* Functions.swift in Sources */,
 				A559F77E2582266E00B177A4 /* NFCPassportReader.swift in Sources */,
+				A5FB148F2584E70200537172 /* NFCCommand.swift in Sources */,
 				A559F7B22582648F00B177A4 /* ASN1.swift in Sources */,
 				A559F7B52582658100B177A4 /* NFCData.swift in Sources */,
 				A559F772258223F500B177A4 /* Data+Encoding.swift in Sources */,
 				A559F7942582307900B177A4 /* Data+XOR.swift in Sources */,
 				A559F79B258230D700B177A4 /* Algorithms.swift in Sources */,
+				A5FB14922584ED5300537172 /* NFCParseDG2Command.swift in Sources */,
 				A559F7A22582330100B177A4 /* NFCMutualAuthCommand.swift in Sources */,
 				A559F79025822F9900B177A4 /* NFCBacAuthCommand.swift in Sources */,
 				A559F76E258223D600B177A4 /* StringProtocol+Hex.swift in Sources */,

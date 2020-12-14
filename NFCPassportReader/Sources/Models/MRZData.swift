@@ -21,6 +21,9 @@ public struct MRZData: Equatable {
     /// document numner
     public let documentNumber: String
     
+    /// type
+    public let mrzType: MRZType
+    
     public static func ==(lhs: MRZData, rhs: MRZData) -> Bool {
         return rhs.mrz == lhs.mrz
     }
