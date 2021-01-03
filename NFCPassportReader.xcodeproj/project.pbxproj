@@ -31,6 +31,8 @@
 		A559F7B52582658100B177A4 /* NFCData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F7B42582658100B177A4 /* NFCData.swift */; };
 		A559F7B8258265DE00B177A4 /* Datagroups.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F7B7258265DE00B177A4 /* Datagroups.swift */; };
 		A559F7BC2582692B00B177A4 /* SessionKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F7BB2582692B00B177A4 /* SessionKeys.swift */; };
+		A5C4D3B22588C35600697DAD /* MRZType.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C4D3B12588C35600697DAD /* MRZType.swift */; };
+		A5C4D4512588D40800697DAD /* NFCParseDG1Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C4D4502588D40800697DAD /* NFCParseDG1Command.swift */; };
 		A5FB13332582999800537172 /* SignalProducer+Progress.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5FB13322582999800537172 /* SignalProducer+Progress.swift */; };
 		A5FB148F2584E70200537172 /* NFCCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5FB148E2584E70200537172 /* NFCCommand.swift */; };
 		A5FB14922584ED5300537172 /* NFCParseDG2Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5FB14912584ED5300537172 /* NFCParseDG2Command.swift */; };
@@ -64,6 +66,8 @@
 		A559F7B42582658100B177A4 /* NFCData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCData.swift; sourceTree = "<group>"; };
 		A559F7B7258265DE00B177A4 /* Datagroups.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Datagroups.swift; sourceTree = "<group>"; };
 		A559F7BB2582692B00B177A4 /* SessionKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionKeys.swift; sourceTree = "<group>"; };
+		A5C4D3B12588C35600697DAD /* MRZType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MRZType.swift; sourceTree = "<group>"; };
+		A5C4D4502588D40800697DAD /* NFCParseDG1Command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCParseDG1Command.swift; sourceTree = "<group>"; };
 		A5FB13322582999800537172 /* SignalProducer+Progress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SignalProducer+Progress.swift"; sourceTree = "<group>"; };
 		A5FB148E2584E70200537172 /* NFCCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCCommand.swift; sourceTree = "<group>"; };
 		A5FB14912584ED5300537172 /* NFCParseDG2Command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCParseDG2Command.swift; sourceTree = "<group>"; };
@@ -157,6 +161,7 @@
 			isa = PBXGroup;
 			children = (
 				A559F68325814DC100B177A4 /* MRZData.swift */,
+				A5C4D3B12588C35600697DAD /* MRZType.swift */,
 				A559F7B42582658100B177A4 /* NFCData.swift */,
 				A559F7BB2582692B00B177A4 /* SessionKeys.swift */,
 			);
@@ -220,6 +225,7 @@
 			isa = PBXGroup;
 			children = (
 				A559F7B7258265DE00B177A4 /* Datagroups.swift */,
+				A5C4D4502588D40800697DAD /* NFCParseDG1Command.swift */,
 				A5FB14912584ED5300537172 /* NFCParseDG2Command.swift */,
 				A5FB14952584ED6000537172 /* NFCParseDG11Command.swift */,
 			);
@@ -339,6 +345,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5C4D3B22588C35600697DAD /* MRZType.swift in Sources */,
 				A5FB14962584ED6000537172 /* NFCParseDG11Command.swift in Sources */,
 				A559F6432581445800B177A4 /* MRZTD1.swift in Sources */,
 				A559F7AC25825D2B00B177A4 /* NFCCommandUtils.swift in Sources */,
@@ -348,6 +355,7 @@
 				A559F78D25822D4B00B177A4 /* NFCSelectCommand.swift in Sources */,
 				A559F6442581445800B177A4 /* MRZTD3.swift in Sources */,
 				A559F798258230AC00B177A4 /* Functions.swift in Sources */,
+				A5C4D4512588D40800697DAD /* NFCParseDG1Command.swift in Sources */,
 				A559F77E2582266E00B177A4 /* NFCPassportReader.swift in Sources */,
 				A5FB148F2584E70200537172 /* NFCCommand.swift in Sources */,
 				A559F7B22582648F00B177A4 /* ASN1.swift in Sources */,

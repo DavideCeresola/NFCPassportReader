@@ -8,6 +8,10 @@
 import Foundation
 
 public enum MRZType {
+    
+    /// the document id type
     case td1
+    
+    /// the passport type
     case td3
 }

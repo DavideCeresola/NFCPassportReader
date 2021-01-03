@@ -36,12 +36,30 @@ public class NFCPassportReader {
         NFCSelectCommand(),
         NFCBacAuthCommand(mrzData: mrzData),
         NFCMutualAuthCommand(),
+        
+        NFCReadDGCommand(dataGroup: .dg11),
+        NFCExtractDataCommand(),
+        NFCParseDG11Command(nfcData: nfcData),
+        
         NFCReadDGCommand(dataGroup: .dg2),
         NFCExtractDataCommand(),
         NFCParseDG2Command(nfcData: nfcData),
-        NFCReadDGCommand(dataGroup: .dg11),
+        
+    ]
+    
+    /// the passport flow to perform
+    private lazy var passportFlow: [NFCCommand] = [
+        NFCSelectCommand(),
+        NFCBacAuthCommand(mrzData: mrzData),
+        NFCMutualAuthCommand(),
+        
+        NFCReadDGCommand(dataGroup: .dg2),
         NFCExtractDataCommand(),
-        NFCParseDG11Command(nfcData: nfcData)
+        NFCParseDG2Command(nfcData: nfcData),
+        
+        NFCReadDGCommand(dataGroup: .dg1),
+        NFCExtractDataCommand(),
+        NFCParseDG1Command(nfcData: nfcData)
     ]
     
     public init(mrzData: MRZData, displayMessage: String? = nil) {
@@ -62,6 +80,14 @@ public class NFCPassportReader {
         
         let progressBlock: ((Double) -> Void) = { [weak self] progress in
             self?.updateProgress(progress)
+        }
+        
+        let flow: [NFCCommand]
+        
+        if mrzData.mrzType == .td1 {
+            flow = self.flow
+        } else {
+            flow = passportFlow
         }
         
         let stepsNumber = Double(flow.count)

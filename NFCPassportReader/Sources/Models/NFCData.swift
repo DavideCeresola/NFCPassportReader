@@ -98,6 +98,19 @@ public class NFCData {
         
     }
     
+    func from(dg1 datagroup: DataGroup1, completion: ((Result<NFCData, NFCError>) -> Void)? = nil) {
+        
+        let nameComponents = datagroup.elements["5B"]
+        let dateComponents = datagroup.elements["5F57"]
+        
+        name = parseName(nameComponents)
+        surname = parseSurname(nameComponents)
+        rawDateOfBirth = dateComponents
+        
+        completion?(.success(self))
+        
+    }
+    
 }
 
 // MARK: - Internal Parsers
@@ -110,9 +123,14 @@ private extension NFCData {
             return nil
         }
         
-        let rawName = fullName.components(separatedBy: "<<").last
-        let splittedName = rawName?.split(separator: "<")
-        return splittedName?.joined(separator: " ").capitalized
+        let rawName = fullName.components(separatedBy: "<<")
+        
+        guard rawName.count > 1 else {
+            return nil
+        }
+        
+        let splittedName = rawName[1].split(separator: "<")
+        return splittedName.joined(separator: " ").capitalized
         
     }
     
