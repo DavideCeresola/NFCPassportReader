@@ -6,7 +6,5 @@ target 'NFCPassportReader' do
   # use_frameworks!
 
   # Pods for NFCPassportReader
-  pod 'ReactiveSwift', '~> 6.1'
-  pod 'IDZSwiftCommonCrypto', '~> 0.13.0'
-
+  pod "NFCPassportReader", :path => "./"
 end
