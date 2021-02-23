@@ -139,6 +139,7 @@ class FlowExecutor {
     var initialStepsCount: Int
     
     var progressBlock: ((Double) -> Void)?
+    private var currentCommand: NFCCommand?
     
     init(session: NFCSession, flow: [NFCCommand]) {
         self.session = session
@@ -172,6 +173,7 @@ class FlowExecutor {
             }
             
             let command = flow.removeFirst()
+            self.currentCommand = command
             updateProgress(with: flow.count)
             command.performCommand(context: context) { [weak self] contextResult in
                 self?.executeNext(from: contextResult, completion: completion)
