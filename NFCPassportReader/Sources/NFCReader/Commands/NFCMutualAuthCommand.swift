@@ -7,64 +7,57 @@
 
 import Foundation
 import CoreNFC
-import ReactiveSwift
 
 @available(iOS 14.0, *)
 class NFCMutualAuthCommand: NFCCommand {
     
-    func performCommand(tag: NFCISO7816Tag, sessionKeys: SessionKeys?, param: Any?) -> SignalProducer<(NFCISO7816Tag, SessionKeys?, Any?), NFCError> {
+    func performCommand(context: NFCCommandContext, completion: @escaping (Result<NFCCommandContext, NFCError>) -> Void) {
         
-        guard let response = param as? NFCBacAuthCommand.BacAuthResult else {
-            return .init(error: .invalidCommand)
+        guard case .bacResult(let response) = context.parameter else {
+            completion(.failure(.invalidCommand))
+            return
         }
         
-        return SignalProducer { observer, lifetime in
+        
+        guard let apduChallenge = NFCISO7816APDU(data: response.apduMutua) else {
+            completion(.failure(.invalidCommand))
+            return
+        }
+        
+        context.tag.sendCommand(apdu: apduChallenge) { (data, word1, word2, error) in
             
-            guard let apduChallenge = NFCISO7816APDU(data: response.apduMutua) else {
-                observer.send(error: .invalidCommand)
+            let responseCode = String(format: "%02x%02x", word1, word2)
+            guard responseCode == "9000" else {
+                completion(.failure(.invalidCommand))
                 return
             }
-
-            tag.sendCommand(apdu: apduChallenge) { (data, word1, word2, error) in
-
-                let responseCode = String(format: "%02x%02x", word1, word2)
-                guard responseCode == "9000" else {
-                    observer.send(error: .invalidCommand)
-                    return
-                }
-
-                let responseMutuaAuth = data.prefix(32)
-                let kIsMacPad = Algorithms.getIsoPad(data: responseMutuaAuth)!
-                let kIsMac = Algorithms.macEnc(masterKey: response.bacMac, data: kIsMacPad)
-                let kIsMac2 = data.suffix(8)
-
-                guard kIsMac == kIsMac2 else {
-                    observer.send(error: .invalidCommand)
-                    return
-                }
-
-                guard let decResp = Algorithms.tripleDesDecrypt(key: response.bacEnc.bytes, data: responseMutuaAuth) else {
-                    observer.send(error: .invalidCommand)
-                    return
-                }
-                let kMrtd = decResp.suffix(16)
-                let kSeed = response.kIs ^ kMrtd
-
-                let kSessMac = (kSeed + [0x00, 0x00, 0x00, 0x02]).sha1.prefix(16).bytes
-                let kSessEnc = (kSeed + [0x00, 0x00, 0x00, 0x01]).sha1.prefix(16).bytes
-
-                let seq = decResp[4..<8].bytes + decResp[12..<16].bytes
             
-                
-                let result = SessionKeys(kSessMac: kSessMac, kSessEnc: kSessEnc, seq: seq)
-
-                observer.send(value: (tag, result, nil))
-                observer.sendCompleted()
-                
+            let responseMutuaAuth = data.prefix(32)
+            let kIsMacPad = Algorithms.getIsoPad(data: responseMutuaAuth)!
+            let kIsMac = Algorithms.macEnc(masterKey: response.bacMac, data: kIsMacPad)
+            let kIsMac2 = data.suffix(8)
+            
+            guard kIsMac == kIsMac2 else {
+                completion(.failure(.invalidCommand))
+                return
             }
             
+            guard let decResp = Algorithms.tripleDesDecrypt(key: response.bacEnc.bytes, data: responseMutuaAuth) else {
+                completion(.failure(.invalidCommand))
+                return
+            }
+            let kMrtd = decResp.suffix(16)
+            let kSeed = response.kIs ^ kMrtd
+            
+            let kSessMac = (kSeed + [0x00, 0x00, 0x00, 0x02]).sha1.prefix(16).bytes
+            let kSessEnc = (kSeed + [0x00, 0x00, 0x00, 0x01]).sha1.prefix(16).bytes
+            
+            let seq = decResp[4..<8].bytes + decResp[12..<16].bytes
+            
+            
+            let result = SessionKeys(kSessMac: kSessMac, kSessEnc: kSessEnc, seq: seq)
+            
+            completion(.success(.init(tag: context.tag, sessionKey: result)))
         }
-        
     }
-    
 }

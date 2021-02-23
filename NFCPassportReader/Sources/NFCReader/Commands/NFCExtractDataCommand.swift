@@ -7,45 +7,38 @@
 
 import Foundation
 import CoreNFC
-import ReactiveSwift
 
 @available(iOS 14.0, *)
 class NFCExtractDataCommand: NFCCommand {
     
-    func performCommand(tag: NFCISO7816Tag, sessionKeys: SessionKeys?, param: Any?) -> SignalProducer<(NFCISO7816Tag, SessionKeys?, Any?), NFCError> {
+    func performCommand(context: NFCCommandContext, completion: @escaping (Result<NFCCommandContext, NFCError>) -> Void) {
         
-        guard let maxLength = param as? Int, let sessionKeys = sessionKeys else {
-            return .init(error: .invalidCommand)
+        guard case .parseLenght(let maxLength) = context.parameter,
+              let sessionKeys = context.sessionKey else {
+            completion(.failure(.invalidCommand))
+            return
         }
         
-        return SignalProducer { observer, lifetime in
+        NFCExtractDataCommand.extract(tag: context.tag, maxLength: maxLength, keys: sessionKeys) { (result) in
             
-            NFCExtractDataCommand.extract(tag: tag, maxLength: maxLength, keys: sessionKeys) { (result) in
-                
-                switch result {
-                case .success(let data):
-                    observer.send(value: (tag, data.1, data.0))
-                    observer.sendCompleted()
-                case .failure(let error):
-                    observer.send(error: error)
-                }
-                
+            switch result {
+            case .success(let data):
+                completion( .success(.init(tag: context.tag, sessionKey: data.0, parameter: .data(data.1))))
+            case .failure(let error):
+                completion(.failure(error))
             }
-            
         }
-        
     }
-    
     private static func extract(tag: NFCISO7816Tag,
                                 data: Data = Data(),
                                 maxLength: Int,
                                 keys: SessionKeys,
-                                completion: @escaping (Result<(Data, SessionKeys), NFCError>) -> Void) {
+                                completion: @escaping (Result<(SessionKeys, Data), NFCError>) -> Void) {
         
         var internalData = data
         let internalDataCount = internalData.count
         var dataLen = internalData.count
-
+        
         let readLen = min(0xe0, Int(maxLength - internalData.count))
         let fraction = UInt8(internalData.count / 256)
         let appo2: [UInt8] = [0x0C, 0xB0] as [UInt8] + [fraction & 0x7F, UInt8(internalDataCount & 0xFF), UInt8(readLen)]
@@ -54,9 +47,9 @@ class NFCExtractDataCommand: NFCCommand {
             return
         }
         
-        let apduDg = secureMessage.0
-        let newKeys = secureMessage.1
-
+        let apduDg = secureMessage.messageSignature
+        let newKeys = secureMessage.sessionKey
+        
         
         guard let apduDG = NFCISO7816APDU(data: Data(apduDg)) else {
             return
@@ -74,19 +67,18 @@ class NFCExtractDataCommand: NFCCommand {
                 return
             }
             
-            let chunk = secureResponse.0
-            let newK = secureResponse.1
+            let chunk = secureResponse.messageSignature
+            let newK = secureResponse.sessionKey
             
             internalData += chunk
             dataLen += chunk.count
-
+            
             if dataLen < maxLength {
                 extract(tag: tag, data: internalData, maxLength: maxLength, keys: newK, completion: completion)
             } else {
-                completion(.success((internalData, newK)))
+                completion(.success((newK, internalData)))
             }
         }
-        
     }
     
 }

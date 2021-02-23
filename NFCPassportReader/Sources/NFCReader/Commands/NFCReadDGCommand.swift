@@ -7,7 +7,6 @@
 
 import Foundation
 import CoreNFC
-import ReactiveSwift
 
 @available(iOS 14.0, *)
 class NFCReadDGCommand: NFCCommand {
@@ -24,74 +23,60 @@ class NFCReadDGCommand: NFCCommand {
         self.dataGroup = dataGroup
     }
     
-    func performCommand(tag: NFCISO7816Tag, sessionKeys: SessionKeys?, param: Any?) -> SignalProducer<(NFCISO7816Tag, SessionKeys?, Any?), NFCError> {
+    func performCommand(context: NFCCommandContext, completion: @escaping (Result<NFCCommandContext, NFCError>) -> Void) {
+
+        let dataGroup = self.dataGroup
+        let somma: UInt8 = dataGroup.rawValue + 0x80
+        let appo: [UInt8] = [0x0C, 0xB0, somma, 0x00, 0x06]
         
-        guard let sessionKeys = sessionKeys else {
-            return .init(error: .invalidCommand)
+        guard let sessionKeys = context.sessionKey,
+              let secureMessage = NFCCommandUtils.secureMessage(apdu: appo, response: sessionKeys) else {
+            completion(.failure(.invalidCommand))
+            return
         }
         
-        return SignalProducer { [weak self] observer, lifetime in
-            
-            guard let dataGroup = self?.dataGroup else {
-                observer.send(error: .invalidCommand)
-                return
-            }
-            
-            let somma: UInt8 = dataGroup.rawValue + 0x80
-
-            let appo: [UInt8] = [0x0C, 0xB0, somma, 0x00, 0x06]
-            
-            guard let secureMessage = NFCCommandUtils.secureMessage(apdu: appo, response: sessionKeys) else {
-                observer.send(error: .invalidCommand)
-                return
-            }
-            
-            let newKeys = secureMessage.1
-
-            guard let apduDG = NFCISO7816APDU(data: Data(secureMessage.0)) else {
-                observer.send(error: .invalidCommand)
-                return
-            }
-
-            tag.sendCommand(apdu: apduDG) { (resp, word1, word2, error) in
-
-                let responseCode = String(format: "%02x%02x", word1, word2)
-                guard responseCode == "9000" else {
-                    observer.send(error: .invalidCommand)
-                    return
-                }
-
-                guard let chunkLen = NFCCommandUtils.respSecureMessage(sessionKeys: newKeys, resp: resp.bytes) else {
-                    observer.send(error: .invalidCommand)
-                    return
-                }
-                
-                let secureResponse = chunkLen.0
-                let newKeys = chunkLen.1
-                
-                guard let maxLen = NFCReadDGCommand.parseLength(data: secureResponse) else {
-                    observer.send(error: .invalidCommand)
-                    return
-                }
-                
-                observer.send(value: (tag, newKeys, maxLen))
-                observer.sendCompleted()
-
-            }
+        let newKeys = secureMessage.sessionKey
+        
+        guard let apduDG = NFCISO7816APDU(data: Data(secureMessage.messageSignature)) else {
+            completion(.failure(.invalidCommand))
+            return
         }
         
+        context.tag.sendCommand(apdu: apduDG) { (resp, word1, word2, error) in
+            
+            let responseCode = String(format: "%02x%02x", word1, word2)
+            guard responseCode == "9000" else {
+                completion(.failure(.invalidCommand))
+                return
+            }
+            
+            guard let chunkLen = NFCCommandUtils.respSecureMessage(sessionKeys: newKeys, resp: resp.bytes) else {
+                completion(.failure(.invalidCommand))
+                return
+            }
+            
+            let secureResponse = chunkLen.messageSignature
+            let newKeys = chunkLen.sessionKey
+            
+            guard let maxLenght = NFCReadDGCommand.parseLength(data: secureResponse) else {
+                completion(.failure(.invalidCommand))
+                return
+            }
+            
+            completion(.success(.init(tag: context.tag, sessionKey: newKeys, parameter: .parseLenght(maxLenght))))
+        }
     }
     
     private static func parseLength(data: [UInt8]) -> Int? {
-
+        
         let dataLen = data.count
-
+        
         if dataLen == 0 {
             return nil
         }
-
+        
         var readPos = 2
-
+        
         var byteLen = Int(data[1])
         if byteLen > 128 {
             let lenlen = byteLen - 128
@@ -100,13 +85,11 @@ class NFCReadDGCommand: NFCCommand {
                 if readPos == dataLen {
                     return nil
                 }
-
+                
                 byteLen = (byteLen << 8) | Int(data[readPos])
                 readPos += 1
             }
         }
         return readPos + byteLen
-
     }
-    
 }

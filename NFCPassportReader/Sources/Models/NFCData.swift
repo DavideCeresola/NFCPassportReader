@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import CoreLocation
 
-@available(iOS 13, *)
+@available(iOS 14.0, *)
 public class NFCData {
     
     public struct Address {
@@ -114,7 +114,7 @@ public class NFCData {
 }
 
 // MARK: - Internal Parsers
-@available(iOS 13, *)
+@available(iOS 14.0, *)
 private extension NFCData {
     
     func parseName(_ fullName: String?) -> String? {
