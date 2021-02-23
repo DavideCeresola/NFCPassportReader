@@ -26,6 +26,7 @@ public class NFCPassportReader {
     
     private let mrzData: MRZData
     private let displayMessage: String?
+    private var flowExecutor: FlowExecutor?
     
     private lazy var nfcData: NFCData = .init(mrzType: mrzData.mrzType)
     
@@ -88,6 +89,9 @@ public class NFCPassportReader {
         
         let session = self.session
         let delegate = self.delegate
+        
+        self.flowExecutor = nil
+        
         let flowExecutor = FlowExecutor(session: session, flow: nfcFlow)
         flowExecutor.progressBlock = { session.message = delegate?.readerMessage(for: $0) }
         flowExecutor.start(with: tag, passportTag: passportTag) { result in
@@ -106,6 +110,7 @@ public class NFCPassportReader {
                 delegate?.reader(didSuccededWith: nfcData)
             }
         }
+        self.flowExecutor = flowExecutor
     }
 }
 

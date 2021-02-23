@@ -2,8 +2,6 @@ PODS:
   - IDZSwiftCommonCrypto (0.13.0)
   - NFCPassportReader (0.1.4):
     - IDZSwiftCommonCrypto (~> 0.13.0)
-    - ReactiveSwift (~> 6.1)
-  - ReactiveSwift (6.5.0)
 
 DEPENDENCIES:
   - NFCPassportReader (from `./`)
@@ -11,7 +9,6 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - IDZSwiftCommonCrypto
-    - ReactiveSwift
 
 EXTERNAL SOURCES:
   NFCPassportReader:
@@ -19,8 +16,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   IDZSwiftCommonCrypto: 00dd37cdfbd149312a7e5a582cf9909f8b129f44
-  NFCPassportReader: 216a993eaafdbeddfe5fe6a3191a684bcbabd254
-  ReactiveSwift: 8d159904084e908856cde90b2e28823f3c7e485f
+  NFCPassportReader: 185fc51b9ed05af65395b2de6ddeb45e1edcb636
 
 PODFILE CHECKSUM: 3dc5284371c2798ba1d13faaf0b1830222f53e0d
 
