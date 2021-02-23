@@ -33,7 +33,7 @@ Pod::Spec.new do |s|
 
     # 7
     s.framework = "UIKit"
-    s.dependency 'ReactiveSwift', '~> 6.1'
+    # s.dependency 'ReactiveSwift', '~> 6.1'
     s.dependency 'IDZSwiftCommonCrypto', '~> 0.13.0'
 
     # 8

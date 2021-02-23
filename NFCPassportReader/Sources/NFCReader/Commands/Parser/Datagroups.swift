@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import CryptoKit
 
-@available(iOS 13, *)
+@available(iOS 14.0, *)
 public class DataGroup {
 
     /// Body contains the actual data
@@ -74,7 +74,7 @@ public class DataGroup {
 
 }
 
-@available(iOS 13, *)
+@available(iOS 14.0, *)
 public class DataGroup1 : DataGroup {
     
     enum DocTypeEnum {
@@ -172,7 +172,7 @@ public class DataGroup1 : DataGroup {
 
 }
 
-@available(iOS 13, *)
+@available(iOS 14.0, *)
 public class DataGroup2: DataGroup {
     public private(set) var nrImages : Int = 0
     public private(set) var versionNumber : Int = 0
@@ -322,7 +322,7 @@ public class DataGroup2: DataGroup {
 
 
 
-@available(iOS 13, *)
+@available(iOS 14.0, *)
 public class DataGroup11: DataGroup {
     
     public private(set) var fullName : String?
@@ -438,7 +438,7 @@ private func asn1Length(_ data : [UInt8]) throws -> (Int, Int)  {
     
 }
 
-@available(iOS 13.0, *)
+@available(iOS 14.0, *)
 private func calcSHA256Hash( _ data: [UInt8] ) -> [UInt8] {
     #if canImport(CryptoKit)
     var sha1 = SHA256()
@@ -451,7 +451,7 @@ private func calcSHA256Hash( _ data: [UInt8] ) -> [UInt8] {
     #endif
 }
 
-@available(iOS 13.0, *)
+@available(iOS 14.0, *)
 private func calcSHA1Hash( _ data: [UInt8] ) -> [UInt8] {
     #if canImport(CryptoKit)
     var sha1 = Insecure.SHA1()

@@ -10,6 +10,12 @@ import Foundation
 @available(iOS 14.0, *)
 class NFCCommandUtils {
     
+    struct SecureMessage {
+        
+        var messageSignature: [UInt8]
+        var sessionKey: SessionKeys
+    }
+    
     static func seqIncrement(seq: inout [UInt8], index: Int? = nil) {
 
         if index == nil {
@@ -27,7 +33,7 @@ class NFCCommandUtils {
     
     static func respSecureMessage(sessionKeys: SessionKeys,
                                           resp: [UInt8],
-                                          odd: Bool = false) -> ([UInt8], SessionKeys)? {
+                                          odd: Bool = false) -> SecureMessage? {
 
         var seq = sessionKeys.seq
         NFCCommandUtils.seqIncrement(seq: &seq)
@@ -152,12 +158,11 @@ class NFCCommandUtils {
             return nil
         }
         
-        return (isoRemove, sessionKeys.with(newSeq: seq))
-
+        return SecureMessage(messageSignature: isoRemove, sessionKey: sessionKeys.with(newSeq: seq))
     }
-    
-    static func secureMessage(apdu: [UInt8], response: SessionKeys) -> ([UInt8], SessionKeys)? {
 
+    static func secureMessage(apdu: [UInt8], response: SessionKeys) -> SecureMessage? {
+        
         var seq = response.seq
         NFCCommandUtils.seqIncrement(seq: &seq)
 
@@ -209,8 +214,7 @@ class NFCCommandUtils {
         
         let final: [UInt8] = [] + apdu.prefix(4) + [UInt8(dataField.count)] + dataField + [0x00]
 
-        return (final, response.with(newSeq: seq))
-
+        return SecureMessage(messageSignature: final, sessionKey: response.with(newSeq: seq))
     }
     
     private static func updateIndex(index: inout Int, args: Int...) {

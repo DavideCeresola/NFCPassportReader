@@ -7,9 +7,8 @@
 
 import Foundation
 import CoreNFC
-import ReactiveSwift
 
-@available(iOS 13.0, *)
+@available(iOS 14.0, *)
 protocol NFCSessionDelegate: class {
     
     func session(didBecomeActive session: NFCTagReaderSession)
@@ -18,7 +17,7 @@ protocol NFCSessionDelegate: class {
     
 }
 
-@available(iOS 13.0, *)
+@available(iOS 14.0, *)
 class NFCSession: NSObject {
     
     /// session that needs to be recreated every time
@@ -56,26 +55,25 @@ class NFCSession: NSObject {
         
     }
     
-    func connectProducer(to tag: NFCTag, passportTag: NFCISO7816Tag) -> SignalProducer<NFCISO7816Tag, NFCError> {
+    func performConnection(to tag: NFCTag, passportTag: NFCISO7816Tag, completionBlock: @escaping (Result<NFCISO7816Tag, NFCError>) -> Void) {
         
-        return SignalProducer { [weak self] observer, lifetime in
-            
-            self?.session?.connect(to: tag) { (error) in
-                if let _ = error {
-                    self?.session?.invalidate()
-                    observer.send(error: .connectionError)
-                } else {
-                    observer.send(value: passportTag)
-                    observer.sendCompleted()
-                }
-            }
+        guard let session = self.session else {
+            completionBlock(.failure(.connectionError))
+            return
         }
         
+        session.connect(to: tag) { (error) in
+            if error != nil {
+                session.invalidate()
+                completionBlock(.failure(.connectionError))
+                return
+            }
+            completionBlock(.success(passportTag))
+        }
     }
-    
 }
 
-@available(iOS 13.0, *)
+@available(iOS 14.0, *)
 extension NFCSession: NFCTagReaderSessionDelegate {
     
     func tagReaderSessionDidBecomeActive(_ session: NFCTagReaderSession) {
