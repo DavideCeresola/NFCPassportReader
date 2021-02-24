@@ -15,6 +15,7 @@ public protocol NFCPassportReaderDelegate: class {
     func reader(didSuccededWith data: NFCData)
     
     func readerMessage(for progress: Double) -> String?
+    func readerFailedMessage() -> String?
 }
 
 @available(iOS 14.0, *)
@@ -99,6 +100,7 @@ public class NFCPassportReader {
             switch result {
             
             case .failure(let error):
+                session.message = delegate?.readerFailedMessage()
                 session.finish()
                 delegate?.reader(didFailedWith: error)
                 
