@@ -96,17 +96,15 @@ public class NFCPassportReader {
         flowExecutor.progressBlock = { session.message = delegate?.readerMessage(for: $0) }
         flowExecutor.start(with: tag, passportTag: passportTag) { result in
             
-            defer {
-                session.finish()
-            }
-            
             switch result {
             
             case .failure(let error):
+                session.finish()
                 delegate?.reader(didFailedWith: error)
                 
             case .success(let context):
                 guard case .nfcData(let nfcData) = context.parameter else { return }
+                session.finish()
                 delegate?.reader(didSuccededWith: nfcData)
             }
         }
