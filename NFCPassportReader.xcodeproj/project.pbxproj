@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		281C7EBE7E059478C2A8AFDB /* libPods-NFCPassportReader.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A695B27B2171FA292FDF1731 /* libPods-NFCPassportReader.a */; };
+		A521181B25E6A35000301C8F /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A521181A25E6A35000301C8F /* CoreNFC.framework */; };
 		A559F6362581429A00B177A4 /* NFCPassportReader.h in Headers */ = {isa = PBXBuildFile; fileRef = A559F6342581429900B177A4 /* NFCPassportReader.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A559F6432581445800B177A4 /* MRZTD1.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F6402581445800B177A4 /* MRZTD1.swift */; };
 		A559F6442581445800B177A4 /* MRZTD3.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F6412581445800B177A4 /* MRZTD3.swift */; };
@@ -41,6 +42,7 @@
 
 /* Begin PBXFileReference section */
 		304B610B66153F05408BF14A /* Pods-NFCPassportReader.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NFCPassportReader.release.xcconfig"; path = "Target Support Files/Pods-NFCPassportReader/Pods-NFCPassportReader.release.xcconfig"; sourceTree = "<group>"; };
+		A521181A25E6A35000301C8F /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
 		A559F6312581429900B177A4 /* NFCPassportReader.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NFCPassportReader.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A559F6342581429900B177A4 /* NFCPassportReader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NFCPassportReader.h; sourceTree = "<group>"; };
 		A559F6352581429A00B177A4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -82,6 +84,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				281C7EBE7E059478C2A8AFDB /* libPods-NFCPassportReader.a in Frameworks */,
+				A521181B25E6A35000301C8F /* CoreNFC.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,6 +94,7 @@
 		3F5D01C840FF118D6B4D4513 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A521181A25E6A35000301C8F /* CoreNFC.framework */,
 				A695B27B2171FA292FDF1731 /* libPods-NFCPassportReader.a */,
 			);
 			name = Frameworks;
