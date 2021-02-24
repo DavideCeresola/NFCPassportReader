@@ -100,8 +100,7 @@ public class NFCPassportReader {
             switch result {
             
             case .failure(let error):
-                session.message = delegate?.readerFailedMessage()
-                session.finish()
+                session.finish(errorMessage: delegate?.readerFailedMessage())
                 delegate?.reader(didFailedWith: error)
                 
             case .success(let context):

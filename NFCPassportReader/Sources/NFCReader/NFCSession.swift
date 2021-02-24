@@ -48,9 +48,14 @@ class NFCSession: NSObject {
         
     }
     
-    func finish() {
+    func finish(errorMessage: String? = nil) {
         
-        session?.invalidate()
+        if let error = errorMessage {
+            session?.invalidate(errorMessage: error)
+        } else {
+            session?.invalidate()
+        }
+        
         session = nil
         
     }
