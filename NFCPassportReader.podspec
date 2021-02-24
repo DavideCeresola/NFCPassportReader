@@ -33,6 +33,7 @@ Pod::Spec.new do |s|
 
     # 7
     s.framework = "UIKit"
+    s.weak_framework = "CoreNFC"
     # s.dependency 'ReactiveSwift', '~> 6.1'
     s.dependency 'IDZSwiftCommonCrypto', '~> 0.13.0'
 
