@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(CoreNFC)
 import CoreNFC
+#endif
 
 @available(iOS 14.0, *)
 class NFCExtractDataCommand: NFCCommand {

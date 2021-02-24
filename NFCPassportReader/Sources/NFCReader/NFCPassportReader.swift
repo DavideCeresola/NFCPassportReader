@@ -6,7 +6,10 @@
 //
 
 import Foundation
+
+#if canImport(CoreNFC)
 import CoreNFC
+#endif
 
 @available(iOS 14.0, *)
 public protocol NFCPassportReaderDelegate: class {

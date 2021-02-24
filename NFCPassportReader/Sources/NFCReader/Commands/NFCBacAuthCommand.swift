@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(CoreNFC)
 import CoreNFC
+#endif
 
 struct BacAuthResult {
     let apduMutua: Data
