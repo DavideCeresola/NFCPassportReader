@@ -33,14 +33,18 @@ class NFCSession: NSObject {
         }
     }
     
-    func start() {
+    func start(with message: String?) {
         
         guard let session = NFCTagReaderSession(pollingOption: .iso14443, delegate: self) else {
             delegate?.session(didFailedWith: .connectionError)
             return
         }
         
-        session.alertMessage = "Bring the top of your smartphone close to your document and wait a few seconds."
+        if let message = message {
+            session.alertMessage = message
+        } else {
+            session.alertMessage = "Bring the top of your smartphone close to your document and wait a few seconds."
+        }
         
         self.session = session
         

@@ -81,9 +81,9 @@ public class NFCPassportReader {
         
     }
     
-    public func start() {
+    public func start(with message: String? = nil) {
         
-        session.start()
+        session.start(with: message)
     }
     
     private func performFlow(tag: NFCTag, passportTag: NFCISO7816Tag) {
