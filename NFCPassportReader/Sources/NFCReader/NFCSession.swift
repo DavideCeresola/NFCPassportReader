@@ -101,7 +101,8 @@ extension NFCSession: NFCTagReaderSessionDelegate {
         
         switch error.code {
         case .readerSessionInvalidationErrorUserCanceled:
-            break
+            finish()
+            delegate?.session(didFailedWith: .cancelled)
         default:
             finish()
             delegate?.session(didFailedWith: .connectionError)
