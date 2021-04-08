@@ -140,7 +140,9 @@ private extension NFCData {
             return nil
         }
         
-        return fullName.components(separatedBy: "<<").first?.capitalized
+        let rawSurname = fullName.components(separatedBy: "<<").first
+        let splittedSurname = rawSurname?.split(separator: "<")
+        return splittedSurname?.joined(separator: " ").capitalized
         
     }
     
