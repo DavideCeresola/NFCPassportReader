@@ -12,7 +12,7 @@ import CoreNFC
 #endif
 
 @available(iOS 14.0, *)
-public protocol NFCPassportReaderDelegate: class {
+public protocol NFCPassportReaderDelegate: AnyObject {
     
     func reader(didFailedWith error: NFCError)
     func reader(didSuccededWith data: NFCData)

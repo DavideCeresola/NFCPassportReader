@@ -11,7 +11,7 @@ import CoreNFC
 #endif
 
 @available(iOS 14.0, *)
-protocol NFCSessionDelegate: class {
+protocol NFCSessionDelegate: AnyObject {
     
     func session(didBecomeActive session: NFCTagReaderSession)
     func session(didFailedWith error: NFCError)
