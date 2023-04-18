@@ -17,6 +17,7 @@ class NFCReadDGCommand: NFCCommand {
         case dg1 = 1
         case dg2 = 2
         case dg11 = 11
+        case dg12 = 12
     }
     
     private let dataGroup: DataGroup

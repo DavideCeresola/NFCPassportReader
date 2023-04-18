@@ -20,6 +20,7 @@ public class NFCData {
         public let isoCountryCode: String
     }
     
+    public private(set) var documentCode: String?
     public private(set) var name : String?
     public private(set) var surname : String?
     public private(set) var personalNumber : String?
@@ -35,9 +36,14 @@ public class NFCData {
     public private(set) var custodyInfo : String?
     public private(set) var image : UIImage?
     public private(set) var data : [String: String]?
+    public private(set) var issuingAuthority: String?
+    
     public let mrzType: MRZType
+    
     private var rawDateOfBirth : String?
     private var rawAddress : String?
+    private var rawIssuingDate: String?
+    private var rawExpirationDate: String?
     
     public var dateOfBirth: Date? {
         
@@ -46,7 +52,39 @@ public class NFCData {
         }
         
         let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        
+        return formatter.date(from: rawDate)
+        
+    }
+    
+    public var issuingDate: Date? {
+        
+        guard let rawDate = rawIssuingDate else {
+            return nil
+        }
+        
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyyMMdd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        
+        return formatter.date(from: rawDate)
+        
+    }
+    
+    public var expirationDate: Date? {
+        
+        guard let rawDate = rawExpirationDate else {
+            return nil
+        }
+        
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyMMdd"
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
         
         return formatter.date(from: rawDate)
         
@@ -102,11 +140,24 @@ public class NFCData {
         
         let nameComponents = datagroup.elements["5B"]
         let dateComponents = datagroup.elements["5F57"]
+        let expirationDate = datagroup.elements["59"]
+        let code = datagroup.elements["5A"]
         
         name = parseName(nameComponents)
         surname = parseSurname(nameComponents)
-        rawDateOfBirth = dateComponents
         
+        rawDateOfBirth = dateComponents
+        rawExpirationDate = expirationDate
+        documentCode = code
+        
+        completion?(.success(self))
+        
+    }
+    
+    func from(dg12 datagroup: DataGroup12, completion: ((Result<NFCData, NFCError>) -> Void)? = nil) {
+    
+        self.rawIssuingDate = datagroup.dateOfIssue
+        self.issuingAuthority = datagroup.issuingAuthority?.capitalized
         completion?(.success(self))
         
     }
