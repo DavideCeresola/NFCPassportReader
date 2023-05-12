@@ -53,7 +53,7 @@ public class NFCData {
     
     public var nationalityISO: String? {
         guard let nationality else { return nil }
-        return Locale.init(identifier: nationality).regionCode
+        return Locale.init(identifier: nationality).identifier.uppercased()
     }
     
     public var dateOfBirth: Date? {
