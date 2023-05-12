@@ -36,14 +36,25 @@ public class NFCData {
     public private(set) var custodyInfo : String?
     public private(set) var image : UIImage?
     public private(set) var data : [String: String]?
-    public private(set) var issuingAuthority: String?
+    public private(set) var gender: String?
+    public private(set) var nationality: String?
     
     public let mrzType: MRZType
     
+    private var issuingAuthorityDG1, issuingAuthorityDG12: String?
     private var rawDateOfBirth : String?
     private var rawAddress : String?
     private var rawIssuingDate: String?
     private var rawExpirationDate: String?
+    
+    public var issuingAuthority: String? {
+        issuingAuthorityDG1 ?? issuingAuthorityDG12
+    }
+    
+    public var nationalityISO: String? {
+        guard let nationality else { return nil }
+        return Locale.init(identifier: nationality).regionCode
+    }
     
     public var dateOfBirth: Date? {
         
@@ -83,7 +94,7 @@ public class NFCData {
         
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyMMdd"
+        formatter.dateFormat = "yyyyMMdd"
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
         
         return formatter.date(from: rawDate)
@@ -142,13 +153,19 @@ public class NFCData {
         let dateComponents = datagroup.elements["5F57"]
         let expirationDate = datagroup.elements["59"]
         let code = datagroup.elements["5A"]
+        let issAuthority =  datagroup.elements["5F28"]
+        let rawGender = datagroup.elements["5F35"]
+        let rawNationality = datagroup.elements["5F2C"]
         
         name = parseName(nameComponents)
         surname = parseSurname(nameComponents)
         
         rawDateOfBirth = dateComponents
         rawExpirationDate = expirationDate
-        documentCode = code
+        documentCode = code?.replacingOccurrences(of: "<", with: "" )
+        issuingAuthorityDG1 = issAuthority?.capitalized
+        gender = rawGender
+        nationality = rawNationality
         
         completion?(.success(self))
         
@@ -157,7 +174,7 @@ public class NFCData {
     func from(dg12 datagroup: DataGroup12, completion: ((Result<NFCData, NFCError>) -> Void)? = nil) {
     
         self.rawIssuingDate = datagroup.dateOfIssue
-        self.issuingAuthority = datagroup.issuingAuthority?.capitalized
+        self.issuingAuthorityDG12 = datagroup.issuingAuthority?.capitalized
         completion?(.success(self))
         
     }
