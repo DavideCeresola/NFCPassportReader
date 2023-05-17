@@ -57,7 +57,8 @@ public class MRZTD3: MRZParser {
                      birthDate: MRZTD3.stringFromDate(dateOfBirth),
                      expirationDate: MRZTD3.stringFromDate(expirationDate),
                      documentNumber: passportNumber,
-                     mrzType: .td3)
+                     mrzType: .td3,
+                     nationality: countryCode)
     }
     
     

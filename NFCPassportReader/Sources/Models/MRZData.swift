@@ -24,6 +24,14 @@ public struct MRZData: Equatable {
     /// type
     public let mrzType: MRZType
     
+    /// nationality
+    let nationality: String
+    
+    /// nationality ISO
+    public var nationalityISO: String? {
+        return Locale.init(identifier: nationality).identifier.uppercased()
+    }
+    
     public static func ==(lhs: MRZData, rhs: MRZData) -> Bool {
         return rhs.mrz == lhs.mrz
     }
