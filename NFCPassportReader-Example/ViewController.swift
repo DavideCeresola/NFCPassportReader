@@ -45,6 +45,8 @@ class ViewController: UIViewController {
     
     private var scanner: NFCPassportReader?
     
+    private lazy var mrzParser = MRZParser(ocrCorrection: true)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -68,18 +70,7 @@ class ViewController: UIViewController {
         
         let text = mrzText
         
-        let mrzData: MRZData
-        
-        switch tdToggle.selectedSegmentIndex {
-        case 0:
-            guard let data = firstValidMRZTD1(into: text) else { return }
-            mrzData = data.parsedData
-        case 1:
-            guard let data = firstValidMRZTD3(into: text) else { return }
-            mrzData = data.parsedData
-        default:
-            return
-        }
+        guard let data = firstValidMRZ(into: text), let mrzData = data.mrzData else { return }
         
         scanner = .init(mrzData: mrzData)
         scanner!.delegate = self
@@ -87,39 +78,25 @@ class ViewController: UIViewController {
         
     }
     
-    private func firstValidMRZTD1(into scanned: String) -> MRZTD1? {
+    private func firstValidMRZ(into scanned: String) -> MRZResult.GenericDocument? {
 
         for index in scanned.indices {
 
-            let mrz = MRZTD1(scan: String(scanned[index...]))
-
-            let isValid = mrz.isValid()
-            print("isValid:", isValid)
-            if isValid < 0.95 {
+            let mrz = mrzParser.parse(mrzString: String(scanned[index...]))
+            
+            switch mrz {
+            case .genericDocument(let document):
+                
+                guard document.allCheckDigitsValid else {
+                    continue
+                }
+                
+                return document
+                
+            case nil:
                 continue
+                
             }
-
-            return mrz
-
-        }
-
-        return nil
-
-    }
-    
-    private func firstValidMRZTD3(into scanned: String) -> MRZTD3? {
-
-        for index in scanned.indices {
-
-            let mrz = MRZTD3(scan: String(scanned[index...]))
-
-            let isValid = mrz.isValid()
-            print("isValid:", isValid)
-            if isValid < 0.95 {
-                continue
-            }
-
-            return mrz
 
         }
 

@@ -12,6 +12,9 @@ public enum MRZType {
     /// the document id type
     case td1
     
+    /// the td2 type
+    case td2
+    
     /// the passport type
     case td3
 }

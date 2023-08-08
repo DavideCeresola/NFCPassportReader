@@ -38,22 +38,28 @@ public class NFCData {
     public private(set) var data : [String: String]?
     public private(set) var gender: String?
     public private(set) var nationality: String?
+    public private(set) var releaseCountry: String?
     
     public let mrzType: MRZType
     
-    private var issuingAuthorityDG1, issuingAuthorityDG12: String?
+    private var issuingAuthorityDG12: String?
     private var rawDateOfBirth : String?
     private var rawAddress : String?
     private var rawIssuingDate: String?
     private var rawExpirationDate: String?
     
     public var issuingAuthority: String? {
-        issuingAuthorityDG1 ?? issuingAuthorityDG12
+        issuingAuthorityDG12
     }
     
     public var nationalityISO: String? {
         guard let nationality else { return nil }
         return Locale.init(identifier: nationality).identifier.uppercased()
+    }
+    
+    public var releaseCountryISO: String? {
+        guard let releaseCountry else { return nil }
+        return Locale.init(identifier: releaseCountry).identifier.uppercased()
     }
     
     public var dateOfBirth: Date? {
@@ -153,9 +159,9 @@ public class NFCData {
         let dateComponents = datagroup.elements["5F57"]
         let expirationDate = datagroup.elements["59"]
         let code = datagroup.elements["5A"]
-        let issAuthority =  datagroup.elements["5F28"]
         let rawGender = datagroup.elements["5F35"]
         let rawNationality = datagroup.elements["5F2C"]
+        let rawReleaseCountry =  datagroup.elements["5F28"]
         
         name = parseName(nameComponents)
         surname = parseSurname(nameComponents)
@@ -163,9 +169,9 @@ public class NFCData {
         rawDateOfBirth = dateComponents
         rawExpirationDate = expirationDate
         documentCode = code?.replacingOccurrences(of: "<", with: "" )
-        issuingAuthorityDG1 = issAuthority?.capitalized
         gender = rawGender
         nationality = rawNationality
+        releaseCountry = rawReleaseCountry
         
         completion?(.success(self))
         

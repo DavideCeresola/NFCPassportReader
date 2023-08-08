@@ -9,14 +9,11 @@ import Foundation
 
 public struct MRZData: Equatable {
     
-    /// the raw mrz
-    public let mrz: String
-    
     /// date of birth
-    public let birthDate: String
+    public let birthDate: String?
     
     /// document expiration date
-    public let expirationDate: String
+    public let expirationDate: String?
     
     /// document numner
     public let documentNumber: String
@@ -30,10 +27,6 @@ public struct MRZData: Equatable {
     /// nationality ISO
     public var nationalityISO: String? {
         return Locale.init(identifier: nationality).identifier.uppercased()
-    }
-    
-    public static func ==(lhs: MRZData, rhs: MRZData) -> Bool {
-        return rhs.mrz == lhs.mrz
     }
     
 }

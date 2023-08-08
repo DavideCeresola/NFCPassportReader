@@ -35,11 +35,13 @@ public class NFCPassportReader {
     private lazy var nfcData: NFCData = .init(mrzType: mrzData.mrzType)
     
     private var nfcFlow: [NFCCommand] {
-        
-        if mrzData.mrzType == .td1 {
+         
+        switch mrzData.mrzType {
+        case .td1, .td2:
             return td1Flow
+        case .td3:
+            return td3Flow
         }
-        return td3Flow
     }
     
     /// the current flow to perform

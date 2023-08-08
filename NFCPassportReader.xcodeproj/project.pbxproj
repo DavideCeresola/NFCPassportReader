@@ -17,11 +17,13 @@
 		A50F26862A0D37AF00EE491D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A50F26852A0D37AF00EE491D /* Assets.xcassets */; };
 		A50F26892A0D37AF00EE491D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A50F26872A0D37AF00EE491D /* LaunchScreen.storyboard */; };
 		A50F268F2A0D3C6700EE491D /* ResultViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50F268E2A0D3C6700EE491D /* ResultViewController.swift */; };
+		A51AAC1A2A8256FF0011D217 /* MRZFieldFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51AAC192A8256FF0011D217 /* MRZFieldFormatter.swift */; };
+		A51AAC1B2A8256FF0011D217 /* MRZField.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51AAC182A8256FF0011D217 /* MRZField.swift */; };
+		A51AAC1C2A8256FF0011D217 /* String+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51AAC0D2A8256FF0011D217 /* String+Extensions.swift */; };
+		A51AAC1D2A8256FF0011D217 /* MRZResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51AAC0F2A8256FF0011D217 /* MRZResult.swift */; };
+		A51AAC1E2A8256FF0011D217 /* MRZParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51AAC0E2A8256FF0011D217 /* MRZParser.swift */; };
 		A5211A0E25E6A86C00301C8F /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A521181A25E6A35000301C8F /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		A559F6362581429A00B177A4 /* NFCPassportReader.h in Headers */ = {isa = PBXBuildFile; fileRef = A559F6342581429900B177A4 /* NFCPassportReader.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A559F6432581445800B177A4 /* MRZTD1.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F6402581445800B177A4 /* MRZTD1.swift */; };
-		A559F6442581445800B177A4 /* MRZTD3.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F6412581445800B177A4 /* MRZTD3.swift */; };
-		A559F6452581445800B177A4 /* MRZParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F6422581445800B177A4 /* MRZParser.swift */; };
 		A559F68425814DC100B177A4 /* MRZData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F68325814DC100B177A4 /* MRZData.swift */; };
 		A559F76E258223D600B177A4 /* StringProtocol+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F76D258223D600B177A4 /* StringProtocol+Hex.swift */; };
 		A559F772258223F500B177A4 /* Data+Encoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = A559F771258223F500B177A4 /* Data+Encoding.swift */; };
@@ -62,13 +64,20 @@
 		A50F268A2A0D37AF00EE491D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A50F268E2A0D3C6700EE491D /* ResultViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultViewController.swift; sourceTree = "<group>"; };
 		A50F26902A0D3FBA00EE491D /* NFCPassportReader-Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "NFCPassportReader-Example.entitlements"; sourceTree = "<group>"; };
+		A51AAC0D2A8256FF0011D217 /* String+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Extensions.swift"; sourceTree = "<group>"; };
+		A51AAC0E2A8256FF0011D217 /* MRZParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MRZParser.swift; sourceTree = "<group>"; };
+		A51AAC0F2A8256FF0011D217 /* MRZResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MRZResult.swift; sourceTree = "<group>"; };
+		A51AAC112A8256FF0011D217 /* Parser+TD2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Parser+TD2.swift"; sourceTree = "<group>"; };
+		A51AAC122A8256FF0011D217 /* Parsers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parsers.swift; sourceTree = "<group>"; };
+		A51AAC132A8256FF0011D217 /* Parser+TD3.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Parser+TD3.swift"; sourceTree = "<group>"; };
+		A51AAC142A8256FF0011D217 /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
+		A51AAC152A8256FF0011D217 /* Parser+TD1.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Parser+TD1.swift"; sourceTree = "<group>"; };
+		A51AAC182A8256FF0011D217 /* MRZField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MRZField.swift; sourceTree = "<group>"; };
+		A51AAC192A8256FF0011D217 /* MRZFieldFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MRZFieldFormatter.swift; sourceTree = "<group>"; };
 		A521181A25E6A35000301C8F /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
 		A559F6312581429900B177A4 /* NFCPassportReader.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NFCPassportReader.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A559F6342581429900B177A4 /* NFCPassportReader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NFCPassportReader.h; sourceTree = "<group>"; };
 		A559F6352581429A00B177A4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A559F6402581445800B177A4 /* MRZTD1.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MRZTD1.swift; sourceTree = "<group>"; };
-		A559F6412581445800B177A4 /* MRZTD3.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MRZTD3.swift; sourceTree = "<group>"; };
-		A559F6422581445800B177A4 /* MRZParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MRZParser.swift; sourceTree = "<group>"; };
 		A559F68325814DC100B177A4 /* MRZData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MRZData.swift; sourceTree = "<group>"; };
 		A559F76D258223D600B177A4 /* StringProtocol+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StringProtocol+Hex.swift"; sourceTree = "<group>"; };
 		A559F771258223F500B177A4 /* Data+Encoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Encoding.swift"; sourceTree = "<group>"; };
@@ -157,6 +166,18 @@
 			path = "NFCPassportReader-Example";
 			sourceTree = "<group>";
 		};
+		A51AAC162A8256FF0011D217 /* Parsers */ = {
+			isa = PBXGroup;
+			children = (
+				A51AAC112A8256FF0011D217 /* Parser+TD2.swift */,
+				A51AAC122A8256FF0011D217 /* Parsers.swift */,
+				A51AAC132A8256FF0011D217 /* Parser+TD3.swift */,
+				A51AAC142A8256FF0011D217 /* Parser.swift */,
+				A51AAC152A8256FF0011D217 /* Parser+TD1.swift */,
+			);
+			path = Parsers;
+			sourceTree = "<group>";
+		};
 		A559F6272581429900B177A4 = {
 			isa = PBXGroup;
 			children = (
@@ -204,9 +225,12 @@
 		A559F63F2581443400B177A4 /* MRZParser */ = {
 			isa = PBXGroup;
 			children = (
-				A559F6422581445800B177A4 /* MRZParser.swift */,
-				A559F6402581445800B177A4 /* MRZTD1.swift */,
-				A559F6412581445800B177A4 /* MRZTD3.swift */,
+				A51AAC182A8256FF0011D217 /* MRZField.swift */,
+				A51AAC192A8256FF0011D217 /* MRZFieldFormatter.swift */,
+				A51AAC162A8256FF0011D217 /* Parsers */,
+				A51AAC0E2A8256FF0011D217 /* MRZParser.swift */,
+				A51AAC0F2A8256FF0011D217 /* MRZResult.swift */,
+				A51AAC0D2A8256FF0011D217 /* String+Extensions.swift */,
 			);
 			path = MRZParser;
 			sourceTree = "<group>";
@@ -465,15 +489,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A51AAC1D2A8256FF0011D217 /* MRZResult.swift in Sources */,
 				A5C4D3B22588C35600697DAD /* MRZType.swift in Sources */,
 				A5FB14962584ED6000537172 /* NFCParseDG11Command.swift in Sources */,
-				A559F6432581445800B177A4 /* MRZTD1.swift in Sources */,
 				A559F7AC25825D2B00B177A4 /* NFCCommandUtils.swift in Sources */,
 				A559F785258228CA00B177A4 /* NFCError.swift in Sources */,
-				A559F6452581445800B177A4 /* MRZParser.swift in Sources */,
+				A51AAC1B2A8256FF0011D217 /* MRZField.swift in Sources */,
+				A51AAC1E2A8256FF0011D217 /* MRZParser.swift in Sources */,
 				A559F7BC2582692B00B177A4 /* SessionKeys.swift in Sources */,
 				A559F78D25822D4B00B177A4 /* NFCSelectCommand.swift in Sources */,
-				A559F6442581445800B177A4 /* MRZTD3.swift in Sources */,
 				A559F798258230AC00B177A4 /* Functions.swift in Sources */,
 				A5C4D4512588D40800697DAD /* NFCParseDG1Command.swift in Sources */,
 				A559F77E2582266E00B177A4 /* NFCPassportReader.swift in Sources */,
@@ -491,6 +515,8 @@
 				A559F7812582269B00B177A4 /* NFCSession.swift in Sources */,
 				A559F7A925825C7400B177A4 /* NFCExtractDataCommand.swift in Sources */,
 				A559F7A62582396A00B177A4 /* NFCReadDGCommand.swift in Sources */,
+				A51AAC1A2A8256FF0011D217 /* MRZFieldFormatter.swift in Sources */,
+				A51AAC1C2A8256FF0011D217 /* String+Extensions.swift in Sources */,
 				A559F7B8258265DE00B177A4 /* Datagroups.swift in Sources */,
 				A559F68425814DC100B177A4 /* MRZData.swift in Sources */,
 			);

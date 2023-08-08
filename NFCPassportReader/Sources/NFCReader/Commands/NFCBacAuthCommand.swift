@@ -41,13 +41,13 @@ class NFCBacAuthCommand: NFCCommand {
                 return
             }
             
-            guard let mrzData = self?.mrzData else {
+            guard let mrzData = self?.mrzData, let birthDateString = mrzData.birthDate, let expirationDateString = mrzData.expirationDate else {
                 completion(.failure(.invalidCommand))
                 return
             }
             
-            var birthDate = mrzData.birthDate.data
-            var expiration = mrzData.expirationDate.data
+            var birthDate = birthDateString.data
+            var expiration = expirationDateString.data
             var cardIdData = mrzData.documentNumber.data
             
             // add checks
