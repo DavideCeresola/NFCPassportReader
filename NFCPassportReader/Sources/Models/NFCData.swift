@@ -128,7 +128,12 @@ public class NFCData {
         custodyInfo = datagroup.custodyInfo
         rawAddress = datagroup.address
         
-        parseResidenceAddress(datagroup.address) { [weak self] (result) in
+        let preferredLocale: Locale? = {
+            guard let releaseCountry else { return nil }
+            return Locale.init(identifier: releaseCountry)
+        }()
+        
+        parseResidenceAddress(datagroup.address, preferredLocale: preferredLocale) { [weak self] (result) in
             
             guard let self = self else {
                 completion?(.failure(.invalidCommand))
@@ -241,6 +246,7 @@ private extension NFCData {
     }
     
     private func parseResidenceAddress(_ rawResidence: String?,
+                                       preferredLocale: Locale?,
                                        completion: ((Result<Address, NFCError>) -> Void)? = nil) {
         
         guard let residenceComponents = rawResidence?.components(separatedBy: "<"), residenceComponents.count > 1 else {
@@ -251,7 +257,7 @@ private extension NFCData {
         let validComponents = residenceComponents.prefix(2).joined(separator: " ")
     
         let geocoder = CLGeocoder()
-        geocoder.geocodeAddressString(validComponents) { (placemarks, error) in
+        geocoder.geocodeAddressString(validComponents, in: nil, preferredLocale: preferredLocale) { (placemarks, error) in
             guard let placemark = placemarks?.first, error == nil else {
                 completion?(.failure(.invalidAddress))
                 return
