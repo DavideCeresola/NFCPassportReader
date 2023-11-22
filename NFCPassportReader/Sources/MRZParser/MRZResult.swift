@@ -53,7 +53,7 @@ extension MRZResult.GenericDocument {
                      expirationDate: expiryDate != nil ? MRZResult.GenericDocument.dateFormatter.string(from: expiryDate!) : nil,
                      documentNumber: documentNumber,
                      mrzType: mrzType,
-                     nationality: countryCode)
+                     nationality: nationalityCountryCode)
        
     }
     
