@@ -26,7 +26,7 @@ public struct MRZData: Equatable {
     
     /// nationality ISO
     public var nationalityISO: String? {
-        return Locale.init(identifier: nationality).identifier.uppercased()
+        AlphaISOConverter.isoAlpha2(from: nationality)
     }
     
 }

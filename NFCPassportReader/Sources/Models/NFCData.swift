@@ -53,13 +53,11 @@ public class NFCData {
     }
     
     public var nationalityISO: String? {
-        guard let nationality else { return nil }
-        return Locale.init(identifier: nationality).identifier.uppercased()
+        AlphaISOConverter.isoAlpha2(from: nationality)
     }
     
     public var releaseCountryISO: String? {
-        guard let releaseCountry else { return nil }
-        return Locale.init(identifier: releaseCountry).identifier.uppercased()
+        AlphaISOConverter.isoAlpha2(from: releaseCountry)
     }
     
     public var dateOfBirth: Date? {
