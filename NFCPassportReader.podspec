@@ -40,7 +40,7 @@ Pod::Spec.new do |s|
     s.source_files = "NFCPassportReader/**/*.{swift}"
 
     # 9
-    s.resources = "NFCPassportReader/**/*.{png,jpeg,jpg,storyboard,xib,xcassets,json}"
+    s.resources = "Resources/CountryAlphaList.json"
 
     # 10
     s.swift_version = "5"
