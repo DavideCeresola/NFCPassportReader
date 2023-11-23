@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
     s.requires_arc = true
 
     # 2
-    s.version = "0.2.2"
+    s.version = "0.2.3"
 
     # 3
     s.license = { :type => "MIT", :file => "LICENSE" }
@@ -40,7 +40,7 @@ Pod::Spec.new do |s|
     s.source_files = "NFCPassportReader/**/*.{swift}"
 
     # 9
-    s.resources = "NFCPassportReader/**/*.{png,jpeg,jpg,storyboard,xib,xcassets}"
+    s.resources = "NFCPassportReader/**/*.{png,jpeg,jpg,storyboard,xib,xcassets,json}"
 
     # 10
     s.swift_version = "5"
