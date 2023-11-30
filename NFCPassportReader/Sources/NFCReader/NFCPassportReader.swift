@@ -55,13 +55,17 @@ public class NFCPassportReader {
             NFCExtractDataCommand(),
             NFCParseDG1Command(nfcData: nfcData),
             
+            NFCReadDGCommand(dataGroup: .dg2),
+            NFCExtractDataCommand(),
+            NFCParseDG2Command(nfcData: nfcData),
+            
             NFCReadDGCommand(dataGroup: .dg11),
             NFCExtractDataCommand(),
             NFCParseDG11Command(nfcData: nfcData),
             
             NFCReadDGCommand(dataGroup: .dg12),
             NFCExtractDataCommand(),
-            NFCParseDG12Command(nfcData: nfcData),
+            NFCParseDG12Command(nfcData: nfcData)
         ]
     }
     
@@ -75,6 +79,10 @@ public class NFCPassportReader {
             NFCReadDGCommand(dataGroup: .dg1),
             NFCExtractDataCommand(),
             NFCParseDG1Command(nfcData: nfcData),
+            
+            NFCReadDGCommand(dataGroup: .dg2),
+            NFCExtractDataCommand(),
+            NFCParseDG2Command(nfcData: nfcData)
             
         ]
     }
