@@ -52,14 +52,6 @@ public class NFCData {
         issuingAuthorityDG12
     }
     
-    public var nationalityISO: String? {
-        AlphaISOConverter.isoAlpha2(from: nationality)
-    }
-    
-    public var releaseCountryISO: String? {
-        AlphaISOConverter.isoAlpha2(from: releaseCountry)
-    }
-    
     public var dateOfBirth: Date? {
         
         guard let rawDate = rawDateOfBirth else {

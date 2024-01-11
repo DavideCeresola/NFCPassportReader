@@ -24,9 +24,4 @@ public struct MRZData: Equatable {
     /// nationality
     let nationality: String
     
-    /// nationality ISO
-    public var nationalityISO: String? {
-        AlphaISOConverter.isoAlpha2(from: nationality)
-    }
-    
 }
