@@ -22,6 +22,6 @@ public struct MRZData: Equatable {
     public let mrzType: MRZType
     
     /// nationality
-    let nationality: String
+    public let nationality: String
     
 }
