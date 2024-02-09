@@ -37,7 +37,7 @@ extension Parsers {
             let (surnames, givenNames) = names.value as! (String, String)
             
             // MARK: Check Digit
-            var allCheckDigitsValid: Bool = validateCheckDigits(
+            var allCheckDigitsValid: Bool = TD1.validateCheckDigits(
                 documentNumber: documentNumber,
                 optionalData: optionalData,
                 birthdate: birthdate,
@@ -46,17 +46,22 @@ extension Parsers {
                 finalCheckDigit: finalCheckDigit
             )
             
-            // MARK: Check number Document Errors
-            (documentNumber, allCheckDigitsValid) = correctDocumentNumber(
-                documentNumber: documentNumber,
-                birthdate: birthdate,
-                expiryDate: expiryDate,
-                optionalData: optionalData,
-                finalCheckDigit: finalCheckDigit,
-                optionalData2: optionalData2,
-                personalNumber: nil,
-                allCheckDigitsValid: allCheckDigitsValid,
-                using: formatter)
+            // MARK: Check number Document Errors if needed
+            if formatter.ocrCorrection,
+                let correctedDocument = applyDocumentNumberCorrection(documentNumber: documentNumber,
+                                                                      checkDigitValidation: {
+                    TD1.validateCheckDigits(
+                        documentNumber: $0,
+                        optionalData: optionalData,
+                        birthdate: birthdate,
+                        expiryDate: expiryDate,
+                        optionalData2: optionalData2,
+                        finalCheckDigit: finalCheckDigit)
+                    
+                }, using: formatter) {
+                documentNumber = correctedDocument
+                allCheckDigitsValid = true
+            }
             
             // MARK: Result
             return .genericDocument(.init(
@@ -81,42 +86,15 @@ extension Parsers {
         }
         
         // MARK: Private
-        private func validateCheckDigits(documentNumber: MRZField, optionalData: MRZField, birthdate: MRZField, expiryDate: MRZField, optionalData2: MRZField, finalCheckDigit: MRZField) -> Bool {
+        private static func validateCheckDigits(documentNumber: MRZField,
+                                                optionalData: MRZField,
+                                                birthdate: MRZField,
+                                                expiryDate: MRZField,
+                                                optionalData2: MRZField,
+                                                finalCheckDigit: MRZField) -> Bool {
             let compositedValue = [documentNumber, optionalData, birthdate, expiryDate, optionalData2].reduce("", { ($0 + $1.rawValue + ($1.checkDigit ?? "")) })
             let isCompositedValueValid = MRZField.isValueValid(compositedValue, checkDigit: finalCheckDigit.rawValue)
             return (documentNumber.isValid! && birthdate.isValid! && expiryDate.isValid! && isCompositedValueValid)
-        }
-        
-        func correctDocumentNumber(documentNumber: MRZField,
-                                   birthdate: MRZField,
-                                   expiryDate: MRZField,
-                                   optionalData: MRZField?,
-                                   finalCheckDigit: MRZField?,
-                                   optionalData2: MRZField?,
-                                   personalNumber: MRZField?,
-                                   allCheckDigitsValid: Bool,
-                                   using formatter: MRZFieldFormatter) -> (MRZField, Bool) {
-            
-            guard !documentNumber.isValid!,
-                  let optionalData = optionalData,
-                  let optionalData2 = optionalData2,
-                  let finalCheckDigit = finalCheckDigit else  { return (documentNumber, allCheckDigitsValid) }
-            
-            let documentNumberVariances = formatter.variantsWithCheckDigit(for: documentNumber)
-            
-            if let newDocValidate =  documentNumberVariances.first(where: {
-                validateCheckDigits(
-                    documentNumber: $0,
-                    optionalData: optionalData,
-                    birthdate: birthdate,
-                    expiryDate: expiryDate,
-                    optionalData2: optionalData2,
-                    finalCheckDigit: finalCheckDigit)}) {
-                
-                return  (newDocValidate, true)
-            }
-            
-            return (documentNumber, allCheckDigitsValid)
         }
     }
 }

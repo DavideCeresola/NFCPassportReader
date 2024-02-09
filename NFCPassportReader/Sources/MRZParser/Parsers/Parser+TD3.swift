@@ -45,7 +45,7 @@ extension Parsers {
             }
 
             // MARK: Check Digit
-            var allCheckDigitsValid = validateCheckDigits(
+            var allCheckDigitsValid = TD3.validateCheckDigits(
                 documentNumber: documentNumber,
                 birthdate: birthdate,
                 expiryDate: expiryDate,
@@ -53,17 +53,21 @@ extension Parsers {
                 finalCheckDigit: finalCheckDigit
             )
             
-            // MARK: Check number Document Errors
-            (documentNumber, allCheckDigitsValid) = correctDocumentNumber(
-                documentNumber: documentNumber,
-                birthdate: birthdate,
-                expiryDate: expiryDate,
-                optionalData: nil,
-                finalCheckDigit: finalCheckDigit,
-                optionalData2: nil,
-                personalNumber: personalNumber,
-                allCheckDigitsValid: allCheckDigitsValid,
-                using: formatter)
+            // MARK: Check number Document Errors if needed
+            if formatter.ocrCorrection,
+                let correctedDocument = applyDocumentNumberCorrection(documentNumber: documentNumber,
+                                                                      checkDigitValidation: {
+                    
+                    TD3.validateCheckDigits(documentNumber: $0,
+                                            birthdate: birthdate,
+                                            expiryDate: expiryDate,
+                                            personalNumber: personalNumber,
+                                            finalCheckDigit: finalCheckDigit)
+                    
+                }, using: formatter) {
+                documentNumber = correctedDocument
+                allCheckDigitsValid = true
+            }
 
             // MARK: Result
             return .genericDocument(.init(
@@ -88,7 +92,7 @@ extension Parsers {
         }
 
         // MARK: Private
-        private func validateCheckDigits(documentNumber: MRZField, birthdate: MRZField, expiryDate: MRZField, personalNumber: MRZField, finalCheckDigit: MRZField?) -> Bool {
+        private static func validateCheckDigits(documentNumber: MRZField, birthdate: MRZField, expiryDate: MRZField, personalNumber: MRZField, finalCheckDigit: MRZField?) -> Bool {
             if let checkDigit = finalCheckDigit?.rawValue {
                 let compositedValue = [documentNumber, birthdate, expiryDate, personalNumber].reduce("", { ($0 + $1.rawValue + $1.checkDigit!) })
                 let isCompositedValueValid = MRZField.isValueValid(compositedValue, checkDigit: checkDigit)
@@ -97,33 +101,6 @@ extension Parsers {
             else {
                 return (documentNumber.isValid! && birthdate.isValid! && expiryDate.isValid!)
             }
-        }
-        
-        func correctDocumentNumber(documentNumber: MRZField,
-                                   birthdate: MRZField,
-                                   expiryDate: MRZField,
-                                   optionalData: MRZField?,
-                                   finalCheckDigit: MRZField?,
-                                   optionalData2: MRZField?,
-                                   personalNumber: MRZField?,
-                                   allCheckDigitsValid: Bool,
-                                   using formatter: MRZFieldFormatter) -> (MRZField, Bool) {
-            guard !documentNumber.isValid!,
-                  let personalNumber = personalNumber else { return (documentNumber, allCheckDigitsValid) }
-            
-            let documentNumberVariances = formatter.variantsWithCheckDigit(for: documentNumber)
-            
-            if let newDocValidate =  documentNumberVariances.first(where: {
-                validateCheckDigits(documentNumber: $0,
-                                    birthdate: birthdate,
-                                    expiryDate: expiryDate,
-                                    personalNumber: personalNumber,
-                                    finalCheckDigit: finalCheckDigit)}) {
-                
-                return  (newDocValidate, true)
-            }
-            
-            return (documentNumber, allCheckDigitsValid)
         }
     }
 }

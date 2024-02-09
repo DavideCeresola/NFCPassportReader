@@ -10,13 +10,21 @@ import Foundation
 protocol Parser {
     static var shared: Self { get }
     func parse(mrzLines: [String], using formatter: MRZFieldFormatter) -> MRZResult
-    func correctDocumentNumber(documentNumber: MRZField,
-                               birthdate: MRZField,
-                               expiryDate: MRZField,
-                               optionalData: MRZField?,
-                               finalCheckDigit: MRZField?,
-                               optionalData2: MRZField?,
-                               personalNumber: MRZField?,
-                               allCheckDigitsValid: Bool,
-                               using formatter: MRZFieldFormatter) -> (MRZField, Bool)
+    func applyDocumentNumberCorrection(documentNumber: MRZField,
+                                       checkDigitValidation: (MRZField) -> Bool,
+                                       using formatter: MRZFieldFormatter) -> MRZField?
+}
+
+extension Parser {
+    func applyDocumentNumberCorrection(documentNumber: MRZField,
+                                       checkDigitValidation: (MRZField) -> Bool,
+                                       using formatter: MRZFieldFormatter) -> MRZField? {
+        
+        guard !documentNumber.isValid! else { return nil }
+        
+        let documentNumberVariances = formatter.variantsWithCheckDigit(for: documentNumber)
+        
+        return documentNumberVariances.first(where: { checkDigitValidation($0) })
+        
+    }
 }
