@@ -11,19 +11,19 @@ extension Parsers {
     struct TD1: Parser {
         static let shared = TD1()
         static let lineLength = 30
-
+        
         private init() {}
-
+        
         // MARK: Parser
         func parse(mrzLines: [String], using formatter: MRZFieldFormatter) -> MRZResult {
             let (firstLine, secondLine, thirdLine) = (mrzLines[0], mrzLines[1], mrzLines[2])
-
+            
             // MARK: Line #1
             let documentType = formatter.field(.documentType, from: firstLine, at: 0, length: 2)
             let countryCode = formatter.field(.countryCode, from: firstLine, at: 2, length: 3)
-            let documentNumber = formatter.field(.documentNumber, from: firstLine, at: 5, length: 9, checkDigitFollows: true)
+            var documentNumber = formatter.field(.documentNumber, from: firstLine, at: 5, length: 9, checkDigitFollows: true)
             let optionalData = formatter.field(.optionalData, from: firstLine, at: 15, length: 15)
-
+            
             // MARK: Line #2
             let birthdate = formatter.field(.birthdate, from: secondLine, at: 0, length: 6, checkDigitFollows: true)
             let sex = formatter.field(.sex, from: secondLine, at: 7, length: 1)
@@ -31,13 +31,13 @@ extension Parsers {
             let nationality = formatter.field(.nationality, from: secondLine, at: 15, length: 3)
             let optionalData2 = formatter.field(.optionalData, from: secondLine, at: 18, length: 11)
             let finalCheckDigit = formatter.field(.hash, from: secondLine, at: 29, length: 1)
-
+            
             // MARK: Line #3
             let names = formatter.field(.names, from: thirdLine, at: 0, length: 29)
             let (surnames, givenNames) = names.value as! (String, String)
-
+            
             // MARK: Check Digit
-            let allCheckDigitsValid = validateCheckDigits(
+            var allCheckDigitsValid: Bool = validateCheckDigits(
                 documentNumber: documentNumber,
                 optionalData: optionalData,
                 birthdate: birthdate,
@@ -45,7 +45,19 @@ extension Parsers {
                 optionalData2: optionalData2,
                 finalCheckDigit: finalCheckDigit
             )
-
+            
+            // MARK: Check number Document Errors
+            (documentNumber, allCheckDigitsValid) = correctDocumentNumber(
+                documentNumber: documentNumber,
+                birthdate: birthdate,
+                expiryDate: expiryDate,
+                optionalData: optionalData,
+                finalCheckDigit: finalCheckDigit,
+                optionalData2: optionalData2,
+                personalNumber: nil,
+                allCheckDigitsValid: allCheckDigitsValid,
+                using: formatter)
+            
             // MARK: Result
             return .genericDocument(.init(
                 mrzType: .td1,
@@ -67,12 +79,44 @@ extension Parsers {
                 allCheckDigitsValid: allCheckDigitsValid
             ))
         }
-
+        
         // MARK: Private
         private func validateCheckDigits(documentNumber: MRZField, optionalData: MRZField, birthdate: MRZField, expiryDate: MRZField, optionalData2: MRZField, finalCheckDigit: MRZField) -> Bool {
             let compositedValue = [documentNumber, optionalData, birthdate, expiryDate, optionalData2].reduce("", { ($0 + $1.rawValue + ($1.checkDigit ?? "")) })
             let isCompositedValueValid = MRZField.isValueValid(compositedValue, checkDigit: finalCheckDigit.rawValue)
             return (documentNumber.isValid! && birthdate.isValid! && expiryDate.isValid! && isCompositedValueValid)
+        }
+        
+        func correctDocumentNumber(documentNumber: MRZField,
+                                   birthdate: MRZField,
+                                   expiryDate: MRZField,
+                                   optionalData: MRZField?,
+                                   finalCheckDigit: MRZField?,
+                                   optionalData2: MRZField?,
+                                   personalNumber: MRZField?,
+                                   allCheckDigitsValid: Bool,
+                                   using formatter: MRZFieldFormatter) -> (MRZField, Bool) {
+            
+            guard !documentNumber.isValid!,
+                  let optionalData = optionalData,
+                  let optionalData2 = optionalData2,
+                  let finalCheckDigit = finalCheckDigit else  { return (documentNumber, allCheckDigitsValid) }
+            
+            let documentNumberVariances = formatter.variantsWithCheckDigit(for: documentNumber)
+            
+            if let newDocValidate =  documentNumberVariances.first(where: {
+                validateCheckDigits(
+                    documentNumber: $0,
+                    optionalData: optionalData,
+                    birthdate: birthdate,
+                    expiryDate: expiryDate,
+                    optionalData2: optionalData2,
+                    finalCheckDigit: finalCheckDigit)}) {
+                
+                return  (newDocValidate, true)
+            }
+            
+            return (documentNumber, allCheckDigitsValid)
         }
     }
 }

@@ -10,6 +10,16 @@ import Foundation
 class MRZFieldFormatter {
     let ocrCorrection: Bool
     
+    static public let OCRerrors: [String: String] = [
+        "a": "Q",
+        "0": "O",
+        "@": "Q",
+        "I": "1",
+        "1": "I",
+        "8": "B",
+        "B": "8"
+    ]
+    
     fileprivate let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
@@ -126,5 +136,54 @@ class MRZFieldFormatter {
             .replace("I", with: "1")
             .replace("Z", with: "2")
             .replace("B", with: "8")
+    }
+    
+    // MARK: Generate correction OCR
+    func variantsWithCheckDigit(for documentNumberField: MRZField) -> [MRZField] {
+        let documentNumberValue: String = documentNumberField.value as! String
+        
+        let docNumberClean = documentNumberValue.map { char in
+            if char.isLowercase || !(char.isLetter || char.isNumber) {
+                if let adjustedChar = MRZFieldFormatter.OCRerrors[String(char)] {
+                    return adjustedChar
+                }
+            }
+            return String(char)
+        }
+        
+        let newStringDoc = docNumberClean.joined()
+        
+        let possibileNumberDoc = generateVariants(input: newStringDoc, index: newStringDoc.startIndex)
+
+        let candidates: [MRZField] = possibileNumberDoc.map { MRZField(value: $0,
+                                                                       rawValue: $0,
+                                                                       checkDigit: documentNumberField.checkDigit!)
+        }.filter {
+            $0.isValid == true
+        }
+
+        return candidates
+    }
+    
+    private func generateVariants(input: String, index: String.Index) -> [String] {
+        guard index < input.endIndex else {
+            return [input]
+        }
+
+        let currentCharIndex = input.index(after: index)
+        let currentChar = input[index]
+        var variants = [String]()
+
+        if let adjustments = MRZFieldFormatter.OCRerrors[String(currentChar)] {
+            for adjustedChar in adjustments {
+                let variant = input.prefix(upTo: index) + String(adjustedChar) + input.suffix(from: currentCharIndex)
+                variants.append(contentsOf: generateVariants(input: String(variant), index: currentCharIndex))
+            }
+        }
+
+        let unmodifiedVariant = input.prefix(upTo: index) + String(currentChar) + input.suffix(from: currentCharIndex)
+        variants.append(contentsOf: generateVariants(input: String(unmodifiedVariant), index: currentCharIndex))
+
+        return variants
     }
 }
