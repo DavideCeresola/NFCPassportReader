@@ -155,9 +155,10 @@ class MRZFieldFormatter {
         
         let possibileNumberDoc = generateVariants(input: newStringDoc, index: newStringDoc.startIndex)
 
-        let candidates: [MRZField] = possibileNumberDoc.map { MRZField(value: $0,
-                                                                       rawValue: $0,
-                                                                       checkDigit: documentNumberField.checkDigit!)
+        let candidates: [MRZField] = possibileNumberDoc.map { 
+            MRZField(value: $0,
+                     rawValue: $0,
+                     checkDigit: documentNumberField.checkDigit!)
         }.filter {
             $0.isValid == true
         }

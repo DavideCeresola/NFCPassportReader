@@ -14,12 +14,12 @@ public final class MRZParser {
         formatter = MRZFieldFormatter(ocrCorrection: ocrCorrection)
     }
 
-    public func parse(mrzLines: [String]) -> MRZResult? {
+    public func parse(mrzLines: [String]) -> [MRZResult]? {
         let parser = Parsers.parser(for: mrzLines)
         return parser?.parse(mrzLines: mrzLines, using: formatter)
     }
     
-    public func parse(mrzString: String) -> MRZResult? {
+    public func parse(mrzString: String) -> [MRZResult]? {
         return parse(mrzLines: mrzString.components(separatedBy: "\n"))
     }
 }
