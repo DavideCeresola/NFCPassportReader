@@ -28,15 +28,17 @@ public class NFCPassportReader {
     
     public weak var delegate: NFCPassportReaderDelegate?
     
-    private let mrzData: MRZData
+    private let mrzData: [MRZData]
     private let displayMessage: String?
     private var flowExecutor: FlowExecutor?
     
-    private lazy var nfcData: NFCData = .init(mrzType: mrzData.mrzType)
+    private lazy var mrzDataType = mrzData.first!.mrzType
+    
+    private lazy var nfcData: NFCData = .init(mrzType: mrzDataType)
     
     private var nfcFlow: [NFCCommand] {
          
-        switch mrzData.mrzType {
+        switch mrzDataType {
         case .td1, .td2:
             return td1Flow
         case .td3:
@@ -48,8 +50,7 @@ public class NFCPassportReader {
     private var td1Flow: [NFCCommand] {
         [
             NFCSelectCommand(),
-            NFCBacAuthCommand(mrzData: mrzData),
-            NFCMutualAuthCommand(),
+            NFCAuthCompositeCommand(mrzData: mrzData),
             
             NFCReadDGCommand(dataGroup: .dg1),
             NFCExtractDataCommand(),
@@ -73,8 +74,7 @@ public class NFCPassportReader {
     private var td3Flow: [NFCCommand] {
         [
             NFCSelectCommand(),
-            NFCBacAuthCommand(mrzData: mrzData),
-            NFCMutualAuthCommand(),
+            NFCAuthCompositeCommand(mrzData: mrzData),
             
             NFCReadDGCommand(dataGroup: .dg1),
             NFCExtractDataCommand(),
@@ -87,7 +87,7 @@ public class NFCPassportReader {
         ]
     }
     
-    public init(mrzData: MRZData, displayMessage: String? = nil) {
+    public init(mrzData: [MRZData], displayMessage: String? = nil) {
         
         self.mrzData = mrzData
         self.displayMessage = displayMessage

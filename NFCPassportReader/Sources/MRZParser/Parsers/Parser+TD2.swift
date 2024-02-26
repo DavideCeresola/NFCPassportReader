@@ -15,7 +15,7 @@ extension Parsers {
         private init() {}
 
         // MARK: Parser
-        func parse(mrzLines: [String], using formatter: MRZFieldFormatter) -> MRZResult {
+        func parse(mrzLines: [String], using formatter: MRZFieldFormatter) -> [MRZResult] {
             let (firstLine, secondLine) = (mrzLines[0], mrzLines[1])
             let isVisaDocument = (firstLine.substring(0, to: 0) == "V") // MRV-B type
 
@@ -26,7 +26,7 @@ extension Parsers {
             let (surnames, givenNames) = names.value as! (String, String)
 
             // MARK: Line #2
-            var documentNumber = formatter.field(.documentNumber, from: secondLine, at: 0, length: 9, checkDigitFollows: true)
+            let documentNumber = formatter.field(.documentNumber, from: secondLine, at: 0, length: 9, checkDigitFollows: true)
             let nationality = formatter.field(.nationality, from: secondLine, at: 10, length: 3)
             let birthdate = formatter.field(.birthdate, from: secondLine, at: 13, length: 6, checkDigitFollows: true)
             let sex = formatter.field(.sex, from: secondLine, at: 20, length: 1)
@@ -34,6 +34,8 @@ extension Parsers {
             let optionalData = formatter.field(.optionalData, from: secondLine, at: 28, length: isVisaDocument ? 8 : 7)
             let finalCheckDigit = isVisaDocument ? nil : formatter.field(.hash, from: secondLine, at: 35, length: 1)
 
+            var documentNumberCandidates: [MRZField] = [documentNumber]
+            
             // MARK: Check Digit
             var allCheckDigitsValid = TD2.validateCheckDigits(
                 documentNumber: documentNumber,
@@ -45,7 +47,7 @@ extension Parsers {
             
             // MARK: Check number Document Errors if needed
             if formatter.ocrCorrection,
-                let correctedDocument = applyDocumentNumberCorrection(documentNumber: documentNumber,
+                let correctedDocuments = applyDocumentNumberCorrection(documentNumber: documentNumber,
                                                                       checkDigitValidation: {
                     
                     TD2.validateCheckDigits(documentNumber: $0,
@@ -55,30 +57,32 @@ extension Parsers {
                                             finalCheckDigit: finalCheckDigit)
                     
                 }, using: formatter) {
-                documentNumber = correctedDocument
+                documentNumberCandidates = correctedDocuments
                 allCheckDigitsValid = true
             }
 
             // MARK: Result
-            return .genericDocument(.init(
-                mrzType: .td2,
-                documentType: documentType.value as! String,
-                countryCode: countryCode.value as! String,
-                surnames: surnames,
-                givenNames: givenNames,
-                documentNumber: documentNumber.value as! String,
-                nationalityCountryCode: nationality.value as! String,
-                birthdate: birthdate.value as! Date?,
-                sex: sex.value as! String?,
-                expiryDate: expiryDate.value as! Date?,
-                personalNumber: optionalData.value as! String,
-                personalNumber2: nil,
-                isDocumentNumberValid: documentNumber.isValid!,
-                isBirthdateValid: birthdate.isValid!,
-                isExpiryDateValid: expiryDate.isValid!,
-                isPersonalNumberValid: nil,
-                allCheckDigitsValid: allCheckDigitsValid
-            ))
+            return documentNumberCandidates.map {
+                .genericDocument(.init(
+                    mrzType: .td2,
+                    documentType: documentType.value as! String,
+                    countryCode: countryCode.value as! String,
+                    surnames: surnames,
+                    givenNames: givenNames,
+                    documentNumber: $0.value as! String,
+                    nationalityCountryCode: nationality.value as! String,
+                    birthdate: birthdate.value as! Date?,
+                    sex: sex.value as! String?,
+                    expiryDate: expiryDate.value as! Date?,
+                    personalNumber: optionalData.value as! String,
+                    personalNumber2: nil,
+                    isDocumentNumberValid: documentNumber.isValid!,
+                    isBirthdateValid: birthdate.isValid!,
+                    isExpiryDateValid: expiryDate.isValid!,
+                    isPersonalNumberValid: nil,
+                    allCheckDigitsValid: allCheckDigitsValid
+                ))
+            }
         }
 
         // MARK: Private
